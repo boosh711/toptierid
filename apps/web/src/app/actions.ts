@@ -2,6 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+function isRedirectError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "digest" in error &&
+    String((error as { digest?: string }).digest).startsWith("NEXT_REDIRECT")
+  );
+}
 import { prisma, NoteVisibility } from "@top-tier-id/database";
 import {
   getSession,
@@ -22,17 +31,23 @@ import {
 } from "@top-tier-id/validators";
 
 export async function loginAction(formData: FormData) {
-  const email = String(formData.get("email"));
-  const password = String(formData.get("password"));
-  const user = await verifyCredentials(email, password);
-  if (!user) redirect("/auth/login?error=invalid");
-  redirect(
-    user.role === "ATHLETE"
-      ? "/athlete"
-      : user.role === "COACH"
-        ? "/coach"
-        : "/parent"
-  );
+  try {
+    const email = String(formData.get("email"));
+    const password = String(formData.get("password"));
+    const user = await verifyCredentials(email, password);
+    if (!user) redirect("/auth/login?error=invalid");
+    redirect(
+      user.role === "ATHLETE"
+        ? "/athlete"
+        : user.role === "COACH"
+          ? "/coach"
+          : "/parent"
+    );
+  } catch (e) {
+    if (isRedirectError(e)) throw e;
+    console.error("[loginAction]", e);
+    redirect("/auth/login?error=server");
+  }
 }
 
 export async function logoutAction() {

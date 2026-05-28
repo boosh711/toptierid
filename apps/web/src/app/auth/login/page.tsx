@@ -15,9 +15,15 @@ export default async function LoginPage({
           <Logo className="justify-center" />
           <h1 className="mt-4 font-display text-2xl">Welcome back</h1>
         </div>
-        {error && (
+        {error === "invalid" && (
           <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            Invalid email or password
+            Invalid email or password. Demo: athlete@demo.com / demo1234 (requires database seed).
+          </p>
+        )}
+        {error === "server" && (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            Could not reach the database. Check Vercel env vars (DATABASE_URL) and run db:push + db:seed.
+            Visit /api/health for details.
           </p>
         )}
         <form action={loginAction} className="space-y-4">
