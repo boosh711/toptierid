@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ATHLETE
+  PARENT
+  COACH
+}
+
+enum NoteVisibility {
+  PRIVATE
+  PROGRAM
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  firstName    String
+  lastName     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  athleteProfile AthleteProfile?
+  coachProfile   CoachProfile?
+  parentLinks    ParentLink[]    @relation("ParentUser")
+  sentMessages   Message[]       @relation("MessageSender")
+  profileViews   ProfileView[]   @relation("ViewingCoach")
+}
+
+model AthleteProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug           String   @unique
+  sport          String   @default("soccer")
+  position       String?
+  gradYear       Int?
+  gpa            Float?
+  heightInches   Int?
+  club           String?
+  highSchool     String?
+  city           String?
+  state          String?
+  bio            String?
+  photoUrl       String?
+  primaryColor   String   @default("#1E6BD6")
+  secondaryColor String   @default("#0B1F3A")
+  accentColor    String?
+  isPublished    Boolean  @default(false)
+  isPremium      Boolean  @default(false)
+  onboardingStep Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  collegeGoals    CollegeGoals?
+  highlights      Highlight[]
+  scheduleEvents  ScheduleEvent[]
+  parentLinks     ParentLink[]      @relation("AthleteProfile")
+  favorites       CoachFavorite[]
+  notes           CoachNote[]
+  profileViews    ProfileView[]
+  calendarWatches CalendarWatch[]
+  contactRequests ContactRequest[]
+
+  threadParticipants ThreadParticipant[]
+}
+
+model CollegeGoals {
+  id               String         @id @default(cuid())
+  athleteProfileId String         @unique
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  divisions        String[]       @default([])
+  regions          String[]       @default([])
+  targetSchools    String[]       @default([])
+}
+
+model ParentLink {
+  id               String         @id @default(cuid())
+  parentUserId     String
+  parentUser       User           @relation("ParentUser", fields: [parentUserId], references: [id], onDelete: Cascade)
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation("AthleteProfile", fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  canApproveMessages Boolean      @default(true)
+  createdAt        DateTime       @default(now())
+
+  @@unique([parentUserId, athleteProfileId])
+}
+
+model Program {
+  id        String   @id @default(cuid())
+  name      String
+  college   String
+  sport     String   @default("soccer")
+  createdAt DateTime @default(now())
+
+  coachProfiles CoachProfile[]
+  memberships   ProgramMembership[]
+  notes         CoachNote[]
+}
+
+model CoachProfile {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  college    String?
+  title      String?
+  isVerified Boolean  @default(true)
+  programId  String?
+
+  program     Program?            @relation(fields: [programId], references: [id])
+  memberships ProgramMembership[]
+  favorites   CoachFavorite[]
+  notes       CoachNote[]
+  profileViews ProfileView[]
+  calendarWatches CalendarWatch[]
+  contactRequests ContactRequest[]
+
+  @@index([programId])
+}
+
+model ProgramMembership {
+  id             String       @id @default(cuid())
+  programId      String
+  program        Program      @relation(fields: [programId], references: [id], onDelete: Cascade)
+  coachProfileId String
+  coachProfile   CoachProfile @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  role           String       @default("assistant")
+
+  @@unique([programId, coachProfileId])
+}
+
+model Highlight {
+  id               String         @id @default(cuid())
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  title            String
+  url              String
+  thumbnailUrl     String?
+  mimeType         String?
+  sizeBytes        Int?
+  sortOrder        Int            @default(0)
+  createdAt        DateTime       @default(now())
+}
+
+model ScheduleEvent {
+  id               String         @id @default(cuid())
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  title            String
+  startsAt         DateTime
+  endsAt           DateTime?
+  opponent         String?
+  venue            String?
+  field            String?
+  fieldNumber      String?
+  jerseyColor      String?
+  tournamentName   String?
+  createdAt        DateTime       @default(now())
+
+  calendarWatches CalendarWatch[]
+}
+
+model CoachFavorite {
+  id               String         @id @default(cuid())
+  coachProfileId   String
+  coachProfile     CoachProfile   @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+
+  @@unique([coachProfileId, athleteProfileId])
+}
+
+model CoachNote {
+  id               String         @id @default(cuid())
+  coachProfileId   String
+  coachProfile     CoachProfile   @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  programId        String?
+  program          Program?       @relation(fields: [programId], references: [id])
+  body             String
+  visibility       NoteVisibility @default(PRIVATE)
+  audioUrl         String?
+  transcript       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model ProfileView {
+  id               String         @id @default(cuid())
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  coachProfileId   String?
+  coachProfile     CoachProfile?  @relation(fields: [coachProfileId], references: [id])
+  viewerUserId     String?
+  viewerUser       User?          @relation("ViewingCoach", fields: [viewerUserId], references: [id])
+  isAnonymous      Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+
+  @@index([athleteProfileId, createdAt])
+}
+
+model MessageThread {
+  id        String   @id @default(cuid())
+  subject   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ThreadParticipant[]
+  messages     Message[]
+}
+
+model ThreadParticipant {
+  id               String         @id @default(cuid())
+  threadId         String
+  thread           MessageThread  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  userId           String?
+  athleteProfileId String?
+  athleteProfile   AthleteProfile? @relation(fields: [athleteProfileId], references: [id])
+
+  @@index([threadId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+model CalendarWatch {
+  id               String         @id @default(cuid())
+  coachProfileId   String
+  coachProfile     CoachProfile   @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  scheduleEventId  String?
+  scheduleEvent    ScheduleEvent? @relation(fields: [scheduleEventId], references: [id], onDelete: Cascade)
+  alertEnabled     Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+
+  @@unique([coachProfileId, scheduleEventId])
+}
+
+model ContactRequest {
+  id               String         @id @default(cuid())
+  coachProfileId   String
+  coachProfile     CoachProfile   @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  message          String?
+  status           String         @default("pending")
+  createdAt        DateTime       @default(now())
+}

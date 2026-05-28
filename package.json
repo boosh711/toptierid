@@ -1,0 +1,19 @@
+{
+  "name": "top-tier-id",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "db:generate": "pnpm --filter @top-tier-id/database generate",
+    "db:migrate": "pnpm --filter @top-tier-id/database migrate",
+    "db:push": "pnpm --filter @top-tier-id/database push",
+    "db:seed": "pnpm --filter @top-tier-id/database seed",
+    "db:studio": "pnpm --filter @top-tier-id/database studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}
