@@ -27,12 +27,18 @@ cp .env.example apps/web/.env
 cp .env.example packages/database/.env
 ```
 
-### 3. Database
+### 3. Database (local)
 
 ```bash
 docker compose up -d
 pnpm db:push
 pnpm db:seed
+```
+
+**Production (Vercel):** Local `.env` points at Docker — it does **not** seed Neon. Use Neon’s pooled URL or:
+
+```bash
+./scripts/seed-production.sh
 ```
 
 ### 4. Run

@@ -41,24 +41,25 @@ async function main() {
       { email: "coach2@demo.com", firstName: "Amy", lastName: "Chen", title: "Head Coach" },
       { email: "coach3@demo.com", firstName: "Mike", lastName: "Torres", title: "Recruiting Coordinator" },
       { email: "coach4@demo.com", firstName: "Lisa", lastName: "Park", title: "Assistant" },
-    ].map((c, i) =>
-      prisma.user.create({
+    ].map((c, i) => {
+      const { title, ...userFields } = c;
+      return prisma.user.create({
         data: {
-          ...c,
+          ...userFields,
           role: UserRole.COACH,
           passwordHash: hash,
           coachProfile: {
             create: {
               college: i < 2 ? "State University" : ["Tech College", "Valley U", "Coastal U"][i - 2],
-              title: c.title,
+              title,
               isVerified: true,
               programId: i < 2 ? program.id : undefined,
             },
           },
         },
         include: { coachProfile: true },
-      })
-    )
+      });
+    })
   );
 
   for (const u of coachUsers.slice(0, 2)) {
