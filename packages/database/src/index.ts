@@ -1,11 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import { ensureDatabaseUrl } from "./resolve-database-url";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
 function createPrismaClient() {
-  if (!process.env.DATABASE_URL) {
+  const url = ensureDatabaseUrl();
+  if (!url) {
     console.error(
-      "[prisma] DATABASE_URL is not set. Add it in Vercel → Settings → Environment Variables."
+      "[prisma] No database URL found. Set DATABASE_URL (or connect Vercel Postgres/Neon storage)."
     );
   }
   return new PrismaClient({
@@ -18,3 +20,4 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export * from "@prisma/client";
+export { resolveDatabaseUrl, ensureDatabaseUrl, databaseEnvStatus } from "./resolve-database-url";
