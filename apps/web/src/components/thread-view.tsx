@@ -27,21 +27,23 @@ export function ThreadView({
 
   return (
     <div>
-      <Link href={backHref} className="text-sm text-brand">← Back</Link>
+      <Link href={backHref} className="text-sm text-accent hover:underline">
+        ← Back
+      </Link>
       <div className="card mt-4 max-h-[50vh] space-y-3 overflow-y-auto">
         {messages.map((m) => (
           <div
             key={m.id}
             className={`rounded-lg p-3 text-sm ${
               m.sender.id === currentUserId
-                ? "ml-8 bg-brand/10"
-                : "mr-8 bg-slate-100"
+                ? "ml-8 border border-accent/20 bg-accent/10"
+                : "mr-8 border border-border bg-surface-elevated"
             }`}
           >
-            <p className="text-xs font-medium text-slate-500">
+            <p className="text-xs font-medium text-muted">
               {m.sender.firstName} {m.sender.lastName} · {format(m.createdAt, "h:mm a")}
             </p>
-            <p className="mt-1">{m.body}</p>
+            <p className="mt-1 text-white">{m.body}</p>
           </div>
         ))}
       </div>

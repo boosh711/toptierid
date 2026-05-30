@@ -36,27 +36,27 @@ export default async function AthleteHomePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-3xl text-navy">
+        <h1 className="page-title">
           Hey, {session!.firstName}
         </h1>
-        <p className="text-slate-600">Your recruiting command center</p>
+        <p className="text-muted">Your recruiting command center</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="card">
-          <h2 className="font-display text-lg text-brand">Profile completion</h2>
-          <div className="mt-3 h-2 rounded-full bg-slate-100">
+          <h2 className="font-display text-lg text-accent">Profile completion</h2>
+          <div className="mt-3 h-2 rounded-full bg-surface-elevated">
             <div
-              className="h-2 rounded-full bg-brand"
+              className="h-2 rounded-full bg-accent"
               style={{ width: `${(doneCount / checklist.length) * 100}%` }}
             />
           </div>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-muted">
             {doneCount}/{checklist.length} complete
           </p>
           <ul className="mt-4 space-y-2 text-sm">
             {checklist.map((c) => (
-              <li key={c.label} className={c.done ? "text-green-700" : "text-slate-600"}>
+              <li key={c.label} className={c.done ? "text-success" : "text-muted"}>
                 {c.done ? "✓" : "○"} {c.label}
               </li>
             ))}
@@ -69,31 +69,31 @@ export default async function AthleteHomePage() {
         </div>
 
         <div className="card">
-          <h2 className="font-display text-lg text-brand">Coach interest</h2>
+          <h2 className="font-display text-lg text-accent">Coach interest</h2>
           {!showCoachNames && (
-            <p className="mt-2 text-xs text-amber-700">
+            <p className="mt-2 text-xs text-accent">
               Upgrade to Premium to see which coaches viewed your profile.
             </p>
           )}
           {views.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">No views yet — share your link!</p>
+            <p className="mt-4 text-sm text-muted">No views yet — share your link!</p>
           ) : (
             <ul className="mt-4 space-y-2 text-sm">
               {views.map((v) => (
-                <li key={v.id} className="flex justify-between border-b border-slate-50 py-2">
+                <li key={v.id} className="flex justify-between border-b border-border py-2">
                   <span>
                     {showCoachNames && v.coachProfile?.user
                       ? `${v.coachProfile.user.firstName} ${v.coachProfile.user.lastName}`
                       : "A college coach"}
                   </span>
-                  <span className="text-slate-400">
+                  <span className="text-muted">
                     {format(v.createdAt, "MMM d")}
                   </span>
                 </li>
               ))}
             </ul>
           )}
-          <Link href="/athlete/analytics" className="mt-3 inline-block text-sm text-brand">
+          <Link href="/athlete/analytics" className="mt-3 inline-block text-sm text-accent">
             View analytics →
           </Link>
         </div>
@@ -101,20 +101,20 @@ export default async function AthleteHomePage() {
 
       <div className="card">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg text-brand">Upcoming games</h2>
-          <Link href="/athlete/schedule" className="text-sm text-brand">
+          <h2 className="font-display text-lg text-accent">Upcoming games</h2>
+          <Link href="/athlete/schedule" className="text-sm text-accent">
             Manage schedule
           </Link>
         </div>
         {profile.scheduleEvents.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No events scheduled</p>
+          <p className="mt-4 text-sm text-muted">No events scheduled</p>
         ) : (
           <ul className="mt-4 space-y-3">
             {profile.scheduleEvents.map((e) => (
-              <li key={e.id} className="rounded-lg border border-slate-100 p-3 text-sm">
+              <li key={e.id} className="rounded-lg border border-border p-3 text-sm">
                 <p className="font-semibold">{e.title}</p>
-                <p className="text-slate-600">{format(e.startsAt, "EEE, MMM d · h:mm a")}</p>
-                <p className="text-slate-500">
+                <p className="text-muted">{format(e.startsAt, "EEE, MMM d · h:mm a")}</p>
+                <p className="text-muted">
                   {e.field} {e.fieldNumber && `#${e.fieldNumber}`} · Jersey: {e.jerseyColor}
                 </p>
               </li>
@@ -124,9 +124,9 @@ export default async function AthleteHomePage() {
       </div>
 
       {profile.isPublished && (
-        <div className="card border-brand bg-brand/5">
+        <div className="card border-accent bg-accent/10">
           <p className="font-medium">Your public link</p>
-          <code className="mt-2 block rounded bg-white px-3 py-2 text-brand">
+          <code className="mt-2 block rounded bg-surface px-3 py-2 text-accent">
             /p/{profile.slug}
           </code>
         </div>

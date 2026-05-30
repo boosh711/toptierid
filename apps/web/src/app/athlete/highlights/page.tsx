@@ -11,8 +11,8 @@ export default async function HighlightsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-navy">Highlights</h1>
-      <p className="text-slate-600">
+      <h1 className="page-title">Highlights</h1>
+      <p className="text-muted">
         {profile?.isPremium
           ? "Unlimited reels (Premium)"
           : "Free tier: 1 reel — upgrade for unlimited"}

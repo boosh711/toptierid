@@ -12,9 +12,9 @@ export function CalendarSyncPanel({ icsUrl }: { icsUrl: string }) {
   };
 
   return (
-    <div className="card mt-6 border-brand/30 bg-brand/5">
-      <h2 className="font-semibold text-brand">Sync to your phone</h2>
-      <p className="mt-2 text-sm text-slate-600">
+    <div className="card mt-6 border-accent/30 bg-accent/10">
+      <h2 className="font-semibold text-accent">Sync to your phone</h2>
+      <p className="mt-2 text-sm text-muted">
         Subscribe to this calendar feed in Google Calendar or iPhone Calendar (Add Calendar Subscription).
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
@@ -25,8 +25,8 @@ export function CalendarSyncPanel({ icsUrl }: { icsUrl: string }) {
           Download .ics
         </a>
       </div>
-      <p className="mt-3 break-all text-xs text-slate-500">{icsUrl}</p>
-      <p className="mt-2 text-xs text-amber-700">
+      <p className="mt-3 break-all text-xs text-muted">{icsUrl}</p>
+      <p className="mt-2 text-xs text-accent">
         Google / Apple OAuth sync is stubbed — use webcal subscription for this prototype.
       </p>
     </div>

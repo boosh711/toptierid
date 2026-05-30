@@ -16,10 +16,10 @@ export default async function SignupPage({
       <div className="card w-full max-w-md">
         <div className="mb-6 text-center">
           <Logo className="justify-center" />
-          <h1 className="mt-4 font-display text-2xl">Create account</h1>
+          <h1 className="mt-4 page-title">Create account</h1>
         </div>
         {sp.error && (
-          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{sp.error}</p>
+          <p className="mb-4 rounded-lg alert-error">{sp.error}</p>
         )}
         <form action={signupAction} className="space-y-4">
           <div>
@@ -50,9 +50,9 @@ export default async function SignupPage({
           </div>
           <button type="submit" className="btn-primary w-full">Create account</button>
         </form>
-        <p className="mt-4 text-center text-sm text-slate-600">
+        <p className="mt-4 text-center text-sm text-muted">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-brand hover:underline">
+          <Link href="/auth/login" className="text-accent hover:underline">
             Log in
           </Link>
         </p>

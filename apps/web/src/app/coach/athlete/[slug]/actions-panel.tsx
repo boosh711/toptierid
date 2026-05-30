@@ -114,12 +114,12 @@ export function CoachAthleteActions({
 
       <div className="card space-y-3">
         <h2 className="font-semibold">Voice note</h2>
-        <p className="text-xs text-slate-500">Sideline-friendly — stub transcription after recording</p>
+        <p className="text-xs text-muted">Sideline-friendly — stub transcription after recording</p>
         {!recording ? (
           <button
             type="button"
             onClick={startRecording}
-            className="btn-primary w-full min-h-[44px] bg-red-600 hover:bg-red-700"
+            className="btn-danger w-full min-h-[44px]"
           >
             ● Record voice note
           </button>
@@ -160,7 +160,7 @@ export function CoachAthleteActions({
           className="input min-h-[80px]"
           placeholder="Intro message..."
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
         <button
           type="button"
           disabled={pending || !contactMsg}
@@ -185,12 +185,12 @@ export function CoachAthleteActions({
         <h2 className="font-semibold">Recent notes</h2>
         <ul className="mt-3 space-y-3 text-sm">
           {notes.map((n) => (
-            <li key={n.id} className="border-b border-slate-50 pb-2">
-              <p className="text-xs text-slate-400">{n.visibility}</p>
+            <li key={n.id} className="border-b border-border pb-2">
+              <p className="text-xs text-muted">{n.visibility}</p>
               <p>{n.body}</p>
             </li>
           ))}
-          {notes.length === 0 && <p className="text-slate-500">No notes yet</p>}
+          {notes.length === 0 && <p className="text-muted">No notes yet</p>}
         </ul>
       </div>
     </div>

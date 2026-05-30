@@ -52,7 +52,7 @@ export default async function CoachAthletePage({
     <>
       <CoachNav />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <Link href="/coach" className="text-sm text-brand">← Discover</Link>
+        <Link href="/coach" className="text-sm text-accent">← Discover</Link>
 
         <div className="mt-4 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
@@ -69,18 +69,18 @@ export default async function CoachAthletePage({
                   <h1 className="font-display text-2xl">
                     {profile.user.firstName} {profile.user.lastName}
                   </h1>
-                  <p className="text-slate-600">
+                  <p className="text-muted">
                     {profile.position} · Class of {profile.gradYear} · {profile.gpa?.toFixed(2)} GPA
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-muted">
                     {profile.club} · {profile.state}
                   </p>
-                  <Link href={`/p/${profile.slug}`} target="_blank" className="mt-2 inline-block text-sm text-brand">
+                  <Link href={`/p/${profile.slug}`} target="_blank" className="mt-2 inline-block text-sm text-accent">
                     Public profile ↗
                   </Link>
                 </div>
               </div>
-              {profile.bio && <p className="mt-4 text-slate-700">{profile.bio}</p>}
+              {profile.bio && <p className="mt-4 text-muted">{profile.bio}</p>}
             </div>
 
             {profile.highlights.map((h) => (
@@ -94,14 +94,14 @@ export default async function CoachAthletePage({
               <h2 className="font-semibold">Upcoming schedule</h2>
               <ul className="mt-4 space-y-3">
                 {profile.scheduleEvents.map((e) => (
-                  <li key={e.id} className="rounded-lg border border-slate-100 p-3 text-sm">
+                  <li key={e.id} className="rounded-lg border border-border p-3 text-sm">
                     <p className="font-medium">{e.title}</p>
-                    <p className="text-slate-600">{format(e.startsAt, "EEE, MMM d · h:mm a")}</p>
-                    <p className="text-slate-500">
+                    <p className="text-muted">{format(e.startsAt, "EEE, MMM d · h:mm a")}</p>
+                    <p className="text-muted">
                       {e.field} #{e.fieldNumber} · Jersey {e.jerseyColor}
                     </p>
                     {watchedEventIds.has(e.id) && (
-                      <span className="mt-2 inline-block text-xs text-green-700">On your calendar</span>
+                      <span className="mt-2 inline-block text-xs text-success">On your calendar</span>
                     )}
                   </li>
                 ))}

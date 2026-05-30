@@ -11,8 +11,8 @@ export default async function AthleteProfilePage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-navy">Edit profile</h1>
-      <p className="text-slate-600">Customize your Digital ID — changes reflect on your public page</p>
+      <h1 className="page-title">Edit profile</h1>
+      <p className="text-muted">Customize your Digital ID — changes reflect on your public page</p>
       {profile && <ProfileEditor profile={profile} user={session!} />}
     </div>
   );

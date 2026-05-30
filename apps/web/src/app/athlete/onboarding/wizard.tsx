@@ -239,14 +239,14 @@ export function OnboardingWizard({
             }}
           >
             <h2 className="font-semibold">Choose your URL</h2>
-            <p className="text-sm text-slate-600">toptierid.com/p/</p>
+            <p className="text-sm text-muted">toptierid.com/p/</p>
             <input
               value={slug}
               onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
               className="input"
               required
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
             <button type="submit" disabled={pending} className="btn-primary">
               Publish profile
             </button>

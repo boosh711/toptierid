@@ -15,26 +15,26 @@ export default function DemoPage() {
       <div className="card w-full max-w-lg">
         <div className="mb-6 text-center">
           <Logo className="justify-center" />
-          <h1 className="mt-4 font-display text-2xl">Demo accounts</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Password for all: <code className="rounded bg-slate-100 px-1">demo1234</code>
+          <h1 className="mt-4 page-title">Demo accounts</h1>
+          <p className="mt-2 text-sm text-muted">
+            Password for all: <code className="rounded bg-surface-elevated px-1">demo1234</code>
             <br />
-            Run <code className="rounded bg-slate-100 px-1">pnpm db:seed</code> if accounts are missing.
+            Run <code className="rounded bg-surface-elevated px-1">pnpm db:seed</code> if accounts are missing.
           </p>
         </div>
         <div className="space-y-3">
           {demos.map((d) => (
-            <div key={d.email} className="flex items-center justify-between rounded-lg border border-slate-100 p-3">
+            <div key={d.email} className="flex items-center justify-between rounded-lg border border-border p-3">
               <div>
                 <p className="font-medium">{d.label}</p>
-                <p className="text-xs text-slate-500">{d.role}</p>
+                <p className="text-xs text-muted">{d.role}</p>
               </div>
               <DemoLoginButton email={d.email} />
             </div>
           ))}
         </div>
         <p className="mt-6 text-center text-sm">
-          <Link href="/auth/login" className="text-brand hover:underline">
+          <Link href="/auth/login" className="text-accent hover:underline">
             Manual login
           </Link>
         </p>

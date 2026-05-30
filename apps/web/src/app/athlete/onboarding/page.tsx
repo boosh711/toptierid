@@ -14,8 +14,8 @@ export default async function OnboardingPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-navy">Build your Digital ID</h1>
-      <p className="text-slate-600">Step {profile.onboardingStep} of 5</p>
+      <h1 className="page-title">Build your Digital ID</h1>
+      <p className="text-muted">Step {profile.onboardingStep} of 5</p>
       <OnboardingWizard profile={profile} user={session!} />
     </div>
   );

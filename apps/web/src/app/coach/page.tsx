@@ -37,12 +37,12 @@ export default async function CoachDiscoverPage({
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl text-navy">Discover athletes</h1>
-            <p className="text-slate-600">{total} players · {viewsThisWeek} profiles viewed this week</p>
+            <h1 className="page-title">Discover athletes</h1>
+            <p className="text-muted">{total} players · {viewsThisWeek} profiles viewed this week</p>
           </div>
         </div>
 
-        <Suspense fallback={<div className="card mt-6 h-24 animate-pulse bg-slate-200" />}>
+        <Suspense fallback={<div className="card mt-6 h-24 animate-pulse bg-surface-elevated" />}>
           <DiscoverFilters />
         </Suspense>
 
@@ -58,7 +58,6 @@ export default async function CoachDiscoverPage({
               club={a.club}
               state={a.state}
               gpa={a.gpa}
-              primaryColor={a.primaryColor}
               photoUrl={a.photoUrl}
             />
           ))}
@@ -70,7 +69,7 @@ export default async function CoachDiscoverPage({
               <a
                 key={p}
                 href={`/coach?page=${p}`}
-                className={`rounded px-3 py-1 text-sm ${p === page ? "bg-brand text-white" : "bg-white"}`}
+                className={`rounded px-3 py-1 text-sm ${p === page ? "bg-accent text-black" : "bg-surface"}`}
               >
                 {p}
               </a>

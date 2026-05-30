@@ -4,17 +4,17 @@ import { useTransition } from "react";
 import {
   updateAthleteBasics,
   updateProfileStyle,
-  updateCollegeGoals,
   uploadPhoto,
 } from "@/app/actions";
 import { PublicProfileView } from "@/components/public-profile";
-import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
+import { SOCCER_POSITIONS, GRAD_YEARS } from "@top-tier-id/types";
 
 type Profile = {
   slug: string;
   position: string | null;
   gradYear: number | null;
   gpa: number | null;
+  heightInches: number | null;
   club: string | null;
   highSchool: string | null;
   city: string | null;
@@ -54,6 +54,7 @@ export function ProfileEditor({
                 position: fd.get("position"),
                 gradYear: fd.get("gradYear"),
                 gpa: fd.get("gpa") || undefined,
+                heightInches: fd.get("heightInches") || undefined,
                 club: fd.get("club"),
                 highSchool: fd.get("highSchool"),
                 state: fd.get("state"),
@@ -62,23 +63,52 @@ export function ProfileEditor({
             });
           }}
         >
-          <h2 className="font-semibold">Stats & bio</h2>
-          <select name="position" defaultValue={profile.position ?? ""} className="input">
-            {SOCCER_POSITIONS.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-          <select name="gradYear" defaultValue={profile.gradYear ?? ""} className="input">
-            {GRAD_YEARS.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <input name="gpa" type="number" step="0.01" defaultValue={profile.gpa ?? ""} className="input" placeholder="GPA" />
-          <input name="club" defaultValue={profile.club ?? ""} className="input" placeholder="Club" />
-          <input name="highSchool" defaultValue={profile.highSchool ?? ""} className="input" />
-          <input name="state" defaultValue={profile.state ?? ""} className="input" maxLength={2} />
-          <textarea name="bio" defaultValue={profile.bio ?? ""} className="input" rows={4} />
-          <button type="submit" disabled={pending} className="btn-primary">Save</button>
+          <h2 className="section-heading">Player info</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="label">Position</label>
+              <select name="position" defaultValue={profile.position ?? ""} className="input">
+                {SOCCER_POSITIONS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Grad year</label>
+              <select name="gradYear" defaultValue={profile.gradYear ?? ""} className="input">
+                {GRAD_YEARS.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">GPA</label>
+              <input name="gpa" type="number" step="0.01" defaultValue={profile.gpa ?? ""} className="input" />
+            </div>
+            <div>
+              <label className="label">Height (inches)</label>
+              <input name="heightInches" type="number" defaultValue={profile.heightInches ?? ""} className="input" placeholder="68" />
+            </div>
+          </div>
+          <div>
+            <label className="label">Club team</label>
+            <input name="club" defaultValue={profile.club ?? ""} className="input" />
+          </div>
+          <div>
+            <label className="label">High school</label>
+            <input name="highSchool" defaultValue={profile.highSchool ?? ""} className="input" />
+          </div>
+          <div>
+            <label className="label">State</label>
+            <input name="state" defaultValue={profile.state ?? ""} className="input" maxLength={2} />
+          </div>
+          <div>
+            <label className="label">About</label>
+            <textarea name="bio" defaultValue={profile.bio ?? ""} className="input" rows={4} placeholder="Tell coaches about your game..." />
+          </div>
+          <button type="submit" disabled={pending} className="btn-primary w-full">
+            Save profile
+          </button>
         </form>
 
         <form
@@ -89,53 +119,37 @@ export function ProfileEditor({
             start(async () => { await uploadPhoto(fd); });
           }}
         >
-          <h2 className="font-semibold">Photo</h2>
+          <h2 className="section-heading">Photo</h2>
           <input name="file" type="file" accept="image/*" className="input" />
-          <button type="submit" className="btn-secondary">Upload photo</button>
-        </form>
-
-        <form
-          className="card space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const fd = new FormData(e.currentTarget);
-            start(async () => {
-              await updateProfileStyle({
-                primaryColor: String(fd.get("primaryColor")),
-                secondaryColor: String(fd.get("secondaryColor")),
-              });
-            });
-          }}
-        >
-          <h2 className="font-semibold">Colors</h2>
-          <input name="primaryColor" type="color" defaultValue={profile.primaryColor} className="h-10 w-full" />
-          <input name="secondaryColor" type="color" defaultValue={profile.secondaryColor} className="h-10 w-full" />
-          <button type="submit" className="btn-secondary">Save colors</button>
+          <button type="submit" className="btn-secondary w-full">Upload photo</button>
         </form>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200">
-        <PublicProfileView
-          firstName={user.firstName}
-          lastName={user.lastName}
-          slug={profile.slug}
-          position={profile.position}
-          gradYear={profile.gradYear}
-          gpa={profile.gpa}
-          club={profile.club}
-          highSchool={profile.highSchool}
-          city={profile.city}
-          state={profile.state}
-          bio={profile.bio}
-          photoUrl={profile.photoUrl}
-          primaryColor={profile.primaryColor}
-          secondaryColor={profile.secondaryColor}
-          highlights={[]}
-          events={[]}
-          divisions={profile.collegeGoals?.divisions ?? []}
-          regions={profile.collegeGoals?.regions ?? []}
-          targetSchools={profile.collegeGoals?.targetSchools ?? []}
-        />
+      <div className="xl:sticky xl:top-8 xl:self-start">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">Live preview</p>
+        <div className="overflow-hidden rounded-2xl border border-border shadow-2xl shadow-black/50">
+          <PublicProfileView
+            compact
+            firstName={user.firstName}
+            lastName={user.lastName}
+            slug={profile.slug}
+            position={profile.position}
+            gradYear={profile.gradYear}
+            gpa={profile.gpa}
+            heightInches={profile.heightInches}
+            club={profile.club}
+            highSchool={profile.highSchool}
+            city={profile.city}
+            state={profile.state}
+            bio={profile.bio}
+            photoUrl={profile.photoUrl}
+            highlights={[]}
+            events={[]}
+            divisions={profile.collegeGoals?.divisions ?? []}
+            regions={profile.collegeGoals?.regions ?? []}
+            targetSchools={profile.collegeGoals?.targetSchools ?? []}
+          />
+        </div>
       </div>
     </div>
   );

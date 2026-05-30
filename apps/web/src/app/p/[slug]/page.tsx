@@ -38,15 +38,12 @@ export default async function PublicProfilePage({
       slug={profile.slug}
       position={profile.position}
       gradYear={profile.gradYear}
-      gpa={profile.gpa}
-      club={profile.club}
+      heightInches={profile.heightInches}
       highSchool={profile.highSchool}
       city={profile.city}
       state={profile.state}
       bio={profile.bio}
       photoUrl={profile.photoUrl}
-      primaryColor={profile.primaryColor}
-      secondaryColor={profile.secondaryColor}
       highlights={profile.highlights}
       events={profile.scheduleEvents}
       divisions={profile.collegeGoals?.divisions ?? []}

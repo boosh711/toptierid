@@ -25,8 +25,8 @@ export default async function StaffBoardPage() {
     <>
       <CoachNav active="/coach/staff" />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-2xl text-navy">Staff Board</h1>
-        <p className="text-slate-600">
+        <h1 className="page-title">Staff Board</h1>
+        <p className="text-muted">
           {coach?.program
             ? `${coach.program.name} — shared program notes`
             : "Join a program to collaborate with staff"}
@@ -34,7 +34,7 @@ export default async function StaffBoardPage() {
 
         {!coach?.programId && (
           <div className="card mt-6">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted">
               Demo: log in as <code>coach.head@demo.com</code> or <code>coach.asst@demo.com</code> for program workspace.
             </p>
           </div>
@@ -43,7 +43,7 @@ export default async function StaffBoardPage() {
         <div className="mt-6 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-slate-500">
+              <tr className="border-b border-border text-muted">
                 <th className="py-2 pr-4">Athlete</th>
                 <th className="py-2 pr-4">Coach</th>
                 <th className="py-2">Note</th>
@@ -51,11 +51,11 @@ export default async function StaffBoardPage() {
             </thead>
             <tbody>
               {programNotes.map((n) => (
-                <tr key={n.id} className="border-b border-slate-100">
+                <tr key={n.id} className="border-b border-border">
                   <td className="py-3 pr-4 font-medium">
                     {n.athleteProfile.user.firstName} {n.athleteProfile.user.lastName}
                   </td>
-                  <td className="py-3 pr-4 text-slate-600">
+                  <td className="py-3 pr-4 text-muted">
                     {n.coachProfile.user.firstName} {n.coachProfile.user.lastName}
                   </td>
                   <td className="py-3">{n.body}</td>
@@ -64,7 +64,7 @@ export default async function StaffBoardPage() {
             </tbody>
           </table>
           {programNotes.length === 0 && coach?.programId && (
-            <p className="mt-4 text-slate-500">No program-visible notes yet. Share notes from athlete profiles.</p>
+            <p className="mt-4 text-muted">No program-visible notes yet. Share notes from athlete profiles.</p>
           )}
         </div>
       </main>

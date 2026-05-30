@@ -24,21 +24,21 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-navy">Analytics</h1>
-      <p className="text-slate-600">See who&apos;s viewing your Digital ID</p>
+      <h1 className="page-title">Analytics</h1>
+      <p className="text-muted">See who&apos;s viewing your Digital ID</p>
 
       {!profile.isPremium && (
-        <div className="card mt-6 border-amber-200 bg-amber-50">
-          <p className="font-medium text-amber-900">Free tier</p>
-          <p className="text-sm text-amber-800">
+        <div className="card mt-6 alert-warning">
+          <p className="font-medium text-accent">Free tier</p>
+          <p className="text-sm text-accent">
             You see aggregate views only. Upgrade to Premium ($14.99/mo) to see coach names.
           </p>
         </div>
       )}
 
       <div className="card mt-6">
-        <p className="text-3xl font-display text-brand">{profile.profileViews.length}</p>
-        <p className="text-sm text-slate-600">Total profile views</p>
+        <p className="text-3xl font-display text-accent">{profile.profileViews.length}</p>
+        <p className="text-sm text-muted">Total profile views</p>
       </div>
 
       <div className="card mt-6">
@@ -51,7 +51,7 @@ export default async function AnalyticsPage() {
             </li>
           ))}
           {Object.keys(byDay).length === 0 && (
-            <li className="text-slate-500">No views recorded yet</li>
+            <li className="text-muted">No views recorded yet</li>
           )}
         </ul>
       </div>
@@ -60,13 +60,13 @@ export default async function AnalyticsPage() {
         <h2 className="font-semibold">Recent viewers</h2>
         <ul className="mt-4 space-y-2 text-sm">
           {profile.profileViews.map((v) => (
-            <li key={v.id} className="flex justify-between border-b border-slate-50 py-2">
+            <li key={v.id} className="flex justify-between border-b border-border py-2">
               <span>
                 {profile.isPremium && v.coachProfile?.user
                   ? `${v.coachProfile.user.firstName} ${v.coachProfile.user.lastName} · ${v.coachProfile.college}`
                   : "College coach (Premium to reveal)"}
               </span>
-              <span className="text-slate-400">{format(v.createdAt, "MMM d")}</span>
+              <span className="text-muted">{format(v.createdAt, "MMM d")}</span>
             </li>
           ))}
         </ul>

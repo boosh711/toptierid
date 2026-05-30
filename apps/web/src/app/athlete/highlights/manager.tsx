@@ -35,7 +35,7 @@ export function HighlightsManager({
           Upload video
         </button>
         {!isPremium && highlights.length >= 1 && (
-          <p className="text-sm text-amber-700">Free tier limit reached.</p>
+          <p className="text-sm text-accent">Free tier limit reached.</p>
         )}
       </form>
 
@@ -47,7 +47,7 @@ export function HighlightsManager({
               <button
                 type="button"
                 onClick={() => start(async () => { await deleteHighlight(h.id); })}
-                className="text-sm text-red-600"
+                className="text-sm text-red-400"
               >
                 Delete
               </button>

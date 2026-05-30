@@ -7,7 +7,7 @@ export default async function ParentLayout({ children }: { children: React.React
   if (!session || session.role !== "PARENT") redirect("/auth/login");
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-base">
       <ParentNav />
       <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
     </div>

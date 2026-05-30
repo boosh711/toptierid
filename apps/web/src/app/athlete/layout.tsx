@@ -12,7 +12,7 @@ export default async function AthleteLayout({ children }: { children: React.Reac
     : null;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-base">
       <AthleteNav slug={profile?.slug} />
       <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
     </div>

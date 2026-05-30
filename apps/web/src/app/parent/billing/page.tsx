@@ -11,17 +11,17 @@ export default async function ParentBillingPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-navy">Billing</h1>
-      <p className="text-slate-600">Subscription management (Stripe stub)</p>
+      <h1 className="page-title">Billing</h1>
+      <p className="text-muted">Subscription management (Stripe stub)</p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <div className="card border-brand">
+        <div className="card border-accent">
           <h2 className="font-semibold">{PRICING.athletePremium.name}</h2>
-          <p className="mt-2 font-display text-2xl text-brand">
+          <p className="mt-2 font-display text-2xl text-accent">
             {PRICING.athletePremium.price}
             <span className="text-sm font-sans">{PRICING.athletePremium.period}</span>
           </p>
-          <ul className="mt-4 space-y-1 text-sm text-slate-600">
+          <ul className="mt-4 space-y-1 text-sm text-muted">
             <li>✓ Unlimited highlight reels</li>
             <li>✓ See which coaches viewed profile</li>
             <li>✓ Priority search placement</li>
@@ -39,7 +39,7 @@ export default async function ParentBillingPage() {
             </p>
             <p className="mt-2 text-sm">
               Current plan:{" "}
-              <span className="font-semibold text-brand">
+              <span className="font-semibold text-accent">
                 {l.athleteProfile.isPremium ? "Premium" : "Free"}
               </span>
             </p>

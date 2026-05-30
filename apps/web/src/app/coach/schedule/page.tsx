@@ -24,8 +24,8 @@ export default async function CoachSchedulePage() {
     <>
       <CoachNav active="/coach/schedule" />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-2xl text-navy">Recruiting calendar</h1>
-        <p className="text-slate-600">Games you&apos;re watching — sync to iPhone or Google Calendar</p>
+        <h1 className="page-title">Recruiting calendar</h1>
+        <p className="text-muted">Games you&apos;re watching — sync to iPhone or Google Calendar</p>
 
         <CalendarSyncPanel icsUrl={icsUrl} />
 
@@ -39,16 +39,16 @@ export default async function CoachSchedulePage() {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold">{name}</p>
-                    <p className="text-brand">{e.title}</p>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-accent">{e.title}</p>
+                    <p className="text-sm text-muted">
                       {format(e.startsAt, "EEE, MMM d · h:mm a")}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-muted">
                       {e.venue} · {e.field} #{e.fieldNumber} · Jersey {e.jerseyColor}
                     </p>
                   </div>
                   {w.alertEnabled && (
-                    <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
+                    <span className="rounded-full badge-verified">
                       Alert on
                     </span>
                   )}
@@ -57,7 +57,7 @@ export default async function CoachSchedulePage() {
             );
           })}
           {watches.length === 0 && (
-            <li className="card text-slate-500">
+            <li className="card text-muted">
               No watched games — open an athlete profile and add events to your calendar.
             </li>
           )}

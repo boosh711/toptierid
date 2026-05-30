@@ -13,15 +13,15 @@ export default async function LoginPage({
       <div className="card w-full max-w-md">
         <div className="mb-6 text-center">
           <Logo className="justify-center" />
-          <h1 className="mt-4 font-display text-2xl">Welcome back</h1>
+          <h1 className="mt-4 page-title">Welcome back</h1>
         </div>
         {error === "invalid" && (
-          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-4 rounded-lg alert-error">
             Invalid email or password. Demo: athlete@demo.com / demo1234 (requires database seed).
           </p>
         )}
         {error === "server" && (
-          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-4 rounded-lg alert-error">
             Could not reach the database. Check Vercel env vars (DATABASE_URL) and run db:push + db:seed.
             Visit /api/health for details.
           </p>
@@ -37,13 +37,13 @@ export default async function LoginPage({
           </div>
           <button type="submit" className="btn-primary w-full">Log in</button>
         </form>
-        <p className="mt-4 text-center text-sm text-slate-600">
+        <p className="mt-4 text-center text-sm text-muted">
           No account?{" "}
-          <Link href="/auth/signup" className="text-brand hover:underline">
+          <Link href="/auth/signup" className="text-accent hover:underline">
             Sign up
           </Link>
           {" · "}
-          <Link href="/auth/demo" className="text-brand hover:underline">
+          <Link href="/auth/demo" className="text-accent hover:underline">
             Demo logins
           </Link>
         </p>

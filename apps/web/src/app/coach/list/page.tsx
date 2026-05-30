@@ -16,8 +16,8 @@ export default async function CoachListPage() {
     <>
       <CoachNav active="/coach/list" />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-2xl text-navy">My List</h1>
-        <p className="text-slate-600">Saved athletes</p>
+        <h1 className="page-title">My List</h1>
+        <p className="text-muted">Saved athletes</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {favorites.map((f) => (
             <div key={f.id}>
@@ -30,18 +30,17 @@ export default async function CoachListPage() {
                 club={f.athleteProfile.club}
                 state={f.athleteProfile.state}
                 gpa={f.athleteProfile.gpa}
-                primaryColor={f.athleteProfile.primaryColor}
                 photoUrl={f.athleteProfile.photoUrl}
               />
               {f.athleteProfile.notes[0] && (
-                <p className="mt-2 truncate text-xs text-slate-500 italic">
+                <p className="mt-2 truncate text-xs text-muted italic">
                   Note: {f.athleteProfile.notes[0].body}
                 </p>
               )}
             </div>
           ))}
           {favorites.length === 0 && (
-            <p className="text-slate-500">No saved athletes — use Discover to add favorites.</p>
+            <p className="text-muted">No saved athletes — use Discover to add favorites.</p>
           )}
         </div>
       </main>
