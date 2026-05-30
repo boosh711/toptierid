@@ -35,7 +35,7 @@ export function HighlightsManager({
           Upload video
         </button>
         {!isPremium && highlights.length >= 1 && (
-          <p className="text-sm text-accent">Free tier limit reached.</p>
+          <p className="text-sm text-brand-light">Free tier limit reached.</p>
         )}
       </form>
 

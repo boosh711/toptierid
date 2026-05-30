@@ -32,7 +32,7 @@ export default async function ParentDashboardPage() {
           <div key={link.id} className="card">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h2 className="font-display text-xl text-accent">
+                <h2 className="font-display text-xl text-brand-light">
                   {a.user.firstName} {a.user.lastName}
                 </h2>
                 <p className="text-sm text-muted">
@@ -61,13 +61,13 @@ export default async function ParentDashboardPage() {
               <div>
                 <p className="text-sm font-medium">Quick links</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Link href="/parent/inbox" className="text-sm text-accent hover:underline">
+                  <Link href="/parent/inbox" className="text-sm text-brand-light hover:underline">
                     Inbox
                   </Link>
-                  <Link href="/parent/profile" className="text-sm text-accent hover:underline">
+                  <Link href="/parent/profile" className="text-sm text-brand-light hover:underline">
                     Profile oversight
                   </Link>
-                  <Link href="/parent/billing" className="text-sm text-accent hover:underline">
+                  <Link href="/parent/billing" className="text-sm text-brand-light hover:underline">
                     Billing
                   </Link>
                 </div>

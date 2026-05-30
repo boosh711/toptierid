@@ -39,11 +39,11 @@ export default async function LoginPage({
         </form>
         <p className="mt-4 text-center text-sm text-muted">
           No account?{" "}
-          <Link href="/auth/signup" className="text-accent hover:underline">
+          <Link href="/auth/signup" className="text-brand-light hover:underline">
             Sign up
           </Link>
           {" · "}
-          <Link href="/auth/demo" className="text-accent hover:underline">
+          <Link href="/auth/demo" className="text-brand-light hover:underline">
             Demo logins
           </Link>
         </p>

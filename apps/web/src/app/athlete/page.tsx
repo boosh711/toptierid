@@ -44,10 +44,10 @@ export default async function AthleteHomePage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="card">
-          <h2 className="font-display text-lg text-accent">Profile completion</h2>
+          <h2 className="font-display text-lg text-brand-light">Profile completion</h2>
           <div className="mt-3 h-2 rounded-full bg-surface-elevated">
             <div
-              className="h-2 rounded-full bg-accent"
+              className="h-2 rounded-full bg-brand"
               style={{ width: `${(doneCount / checklist.length) * 100}%` }}
             />
           </div>
@@ -69,9 +69,9 @@ export default async function AthleteHomePage() {
         </div>
 
         <div className="card">
-          <h2 className="font-display text-lg text-accent">Coach interest</h2>
+          <h2 className="font-display text-lg text-brand-light">Coach interest</h2>
           {!showCoachNames && (
-            <p className="mt-2 text-xs text-accent">
+            <p className="mt-2 text-xs text-brand-light">
               Upgrade to Premium to see which coaches viewed your profile.
             </p>
           )}
@@ -93,7 +93,7 @@ export default async function AthleteHomePage() {
               ))}
             </ul>
           )}
-          <Link href="/athlete/analytics" className="mt-3 inline-block text-sm text-accent">
+          <Link href="/athlete/analytics" className="mt-3 inline-block text-sm text-brand-light">
             View analytics →
           </Link>
         </div>
@@ -101,8 +101,8 @@ export default async function AthleteHomePage() {
 
       <div className="card">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg text-accent">Upcoming games</h2>
-          <Link href="/athlete/schedule" className="text-sm text-accent">
+          <h2 className="font-display text-lg text-brand-light">Upcoming games</h2>
+          <Link href="/athlete/schedule" className="text-sm text-brand-light">
             Manage schedule
           </Link>
         </div>
@@ -124,9 +124,9 @@ export default async function AthleteHomePage() {
       </div>
 
       {profile.isPublished && (
-        <div className="card border-accent bg-accent/10">
+        <div className="card border-brand bg-brand/10">
           <p className="font-medium">Your public link</p>
-          <code className="mt-2 block rounded bg-surface px-3 py-2 text-accent">
+          <code className="mt-2 block rounded bg-surface px-3 py-2 text-brand-light">
             /p/{profile.slug}
           </code>
         </div>

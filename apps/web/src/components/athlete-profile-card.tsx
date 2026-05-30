@@ -29,10 +29,10 @@ export function AthleteProfileCard({
   return (
     <Link
       href={link}
-      className="card block transition hover:border-accent/40 hover:bg-surface-elevated"
+      className="card block transition hover:border-brand/40 hover:bg-surface-elevated"
     >
       <div className="flex gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-elevated text-lg font-bold text-accent">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-elevated text-lg font-bold text-brand-light">
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photoUrl} alt="" className="h-full w-full object-cover" />

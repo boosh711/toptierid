@@ -21,7 +21,7 @@ export default async function ParentInboxPage() {
     <div>
       <h1 className="page-title">Supervisory inbox</h1>
       <p className="text-muted">View conversations involving your athlete(s)</p>
-      <div className="card mt-4 alert-warning text-sm text-accent">
+      <div className="card mt-4 alert-warning text-sm text-brand-light">
         Approve outbound messages (stub) — toggle coming in production.
       </div>
       <ul className="mt-6 space-y-2">
@@ -29,7 +29,7 @@ export default async function ParentInboxPage() {
           const last = t.messages[0];
           return (
             <li key={t.id}>
-              <Link href={`/parent/inbox/${t.id}`} className="card block hover:border-accent">
+              <Link href={`/parent/inbox/${t.id}`} className="card block hover:border-brand">
                 <p className="font-semibold">{t.subject ?? "Conversation"}</p>
                 {last && <p className="truncate text-sm text-muted">{last.body}</p>}
                 {last && <p className="text-xs text-muted">{format(last.createdAt, "MMM d")}</p>}

@@ -27,7 +27,7 @@ export function ThreadView({
 
   return (
     <div>
-      <Link href={backHref} className="text-sm text-accent hover:underline">
+      <Link href={backHref} className="text-sm text-brand-light hover:underline">
         ← Back
       </Link>
       <div className="card mt-4 max-h-[50vh] space-y-3 overflow-y-auto">
@@ -36,7 +36,7 @@ export function ThreadView({
             key={m.id}
             className={`rounded-lg p-3 text-sm ${
               m.sender.id === currentUserId
-                ? "ml-8 border border-accent/20 bg-accent/10"
+                ? "ml-8 border border-brand/20 bg-brand/10"
                 : "mr-8 border border-border bg-surface-elevated"
             }`}
           >

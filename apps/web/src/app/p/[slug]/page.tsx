@@ -44,6 +44,9 @@ export default async function PublicProfilePage({
       state={profile.state}
       bio={profile.bio}
       photoUrl={profile.photoUrl}
+      primaryColor={profile.primaryColor}
+      secondaryColor={profile.secondaryColor}
+      accentColor={profile.accentColor}
       highlights={profile.highlights}
       events={profile.scheduleEvents}
       divisions={profile.collegeGoals?.divisions ?? []}

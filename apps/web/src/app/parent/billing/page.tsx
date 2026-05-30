@@ -15,9 +15,9 @@ export default async function ParentBillingPage() {
       <p className="text-muted">Subscription management (Stripe stub)</p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <div className="card border-accent">
+        <div className="card border-brand">
           <h2 className="font-semibold">{PRICING.athletePremium.name}</h2>
-          <p className="mt-2 font-display text-2xl text-accent">
+          <p className="mt-2 font-display text-2xl text-brand-light">
             {PRICING.athletePremium.price}
             <span className="text-sm font-sans">{PRICING.athletePremium.period}</span>
           </p>
@@ -39,7 +39,7 @@ export default async function ParentBillingPage() {
             </p>
             <p className="mt-2 text-sm">
               Current plan:{" "}
-              <span className="font-semibold text-accent">
+              <span className="font-semibold text-brand-light">
                 {l.athleteProfile.isPremium ? "Premium" : "Free"}
               </span>
             </p>

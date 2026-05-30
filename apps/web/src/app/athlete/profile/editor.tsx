@@ -1,13 +1,20 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   updateAthleteBasics,
   updateProfileStyle,
+  updateCollegeGoals,
   uploadPhoto,
 } from "@/app/actions";
 import { PublicProfileView } from "@/components/public-profile";
-import { SOCCER_POSITIONS, GRAD_YEARS } from "@top-tier-id/types";
+import { ColorSwatchPicker, DivisionPills } from "@/components/color-swatch-picker";
+import {
+  ACCENT_PRESETS,
+  BACKGROUND_PRESETS,
+  lookupSchoolColors,
+} from "@/lib/profile-colors";
+import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
 type Profile = {
   slug: string;
@@ -23,12 +30,15 @@ type Profile = {
   photoUrl: string | null;
   primaryColor: string;
   secondaryColor: string;
+  accentColor: string | null;
   collegeGoals: {
     divisions: string[];
     regions: string[];
     targetSchools: string[];
   } | null;
 };
+
+const REGION_OPTIONS = ["Open to anywhere", ...US_REGIONS] as const;
 
 export function ProfileEditor({
   profile,
@@ -38,10 +48,67 @@ export function ProfileEditor({
   user: { firstName: string; lastName: string };
 }) {
   const [pending, start] = useTransition();
+  const [colors, setColors] = useState({
+    primaryColor: profile.primaryColor,
+    secondaryColor: profile.secondaryColor,
+    accentColor: profile.accentColor || profile.primaryColor,
+  });
+  const [schoolQuery, setSchoolQuery] = useState("");
+  const [schoolMatch, setSchoolMatch] = useState<string | null>(null);
+  const [divisions, setDivisions] = useState<string[]>(
+    profile.collegeGoals?.divisions ?? []
+  );
+  const [region, setRegion] = useState(
+    profile.collegeGoals?.regions?.[0] ?? "Open to anywhere"
+  );
+  const [targetSchools, setTargetSchools] = useState<string[]>(
+    profile.collegeGoals?.targetSchools ?? []
+  );
+  const [schoolInput, setSchoolInput] = useState("");
+  const [savedMsg, setSavedMsg] = useState("");
+
+  const persistColors = (next: typeof colors) => {
+    setColors(next);
+    start(async () => {
+      await updateProfileStyle({
+        primaryColor: next.primaryColor,
+        secondaryColor: next.secondaryColor,
+        accentColor: next.accentColor,
+      });
+      setSavedMsg("Profile colors saved");
+      setTimeout(() => setSavedMsg(""), 2000);
+    });
+  };
+
+  const applySchoolColors = () => {
+    const match = lookupSchoolColors(schoolQuery);
+    if (!match) {
+      setSchoolMatch(null);
+      return;
+    }
+    const next = {
+      primaryColor: match.primaryColor,
+      secondaryColor: match.secondaryColor,
+      accentColor: match.accentColor,
+    };
+    setSchoolMatch(match.displayName);
+    persistColors(next);
+  };
+
+  const addTargetSchool = () => {
+    const name = schoolInput.trim();
+    if (!name || targetSchools.length >= 5 || targetSchools.includes(name)) return;
+    setTargetSchools([...targetSchools, name]);
+    setSchoolInput("");
+  };
+
+  const previewRegions =
+    region === "Open to anywhere" ? [] : [region];
 
   return (
     <div className="mt-8 grid gap-8 xl:grid-cols-2">
       <div className="space-y-6">
+        {/* Step 1 — Player info */}
         <form
           className="card space-y-4"
           onSubmit={(e) => {
@@ -63,7 +130,9 @@ export function ProfileEditor({
             });
           }}
         >
-          <h2 className="section-heading">Player info</h2>
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            ⚽ Player info
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label">Position</label>
@@ -119,14 +188,169 @@ export function ProfileEditor({
             start(async () => { await uploadPhoto(fd); });
           }}
         >
-          <h2 className="section-heading">Photo</h2>
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            📷 Photo
+          </h2>
           <input name="file" type="file" accept="image/*" className="input" />
           <button type="submit" className="btn-secondary w-full">Upload photo</button>
         </form>
+
+        {/* Step 3 — Colors (public profile only) */}
+        <div className="card space-y-5">
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            🎨 Step 3 · Pick your colors
+          </h2>
+          <p className="text-xs text-muted">
+            These colors apply to your public Digital ID only — not the app dashboard.
+          </p>
+
+          <div>
+            <label className="label">Match a school&apos;s colors</label>
+            <div className="flex gap-2">
+              <input
+                value={schoolQuery}
+                onChange={(e) => setSchoolQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applySchoolColors())}
+                className="input flex-1"
+                placeholder="Type a school… e.g. Stanford"
+              />
+              <button type="button" onClick={applySchoolColors} className="btn-secondary shrink-0">
+                Apply
+              </button>
+            </div>
+            {schoolMatch && (
+              <p className="mt-2 text-xs text-success">Matched {schoolMatch} colors</p>
+            )}
+            {schoolQuery && !schoolMatch && lookupSchoolColors(schoolQuery) === null && schoolQuery.length > 2 && (
+              <p className="mt-2 text-xs text-muted">Try Stanford, Duke, Texas, UCLA, Michigan…</p>
+            )}
+          </div>
+
+          <div>
+            <label className="label">Or pick an accent color</label>
+            <ColorSwatchPicker
+              swatches={ACCENT_PRESETS}
+              selected={colors.accentColor}
+              onSelect={(c) =>
+                persistColors({ ...colors, accentColor: c, primaryColor: c })
+              }
+            />
+          </div>
+
+          <div>
+            <label className="label">Background style</label>
+            <ColorSwatchPicker
+              swatches={BACKGROUND_PRESETS}
+              selected={colors.secondaryColor}
+              onSelect={(c) => persistColors({ ...colors, secondaryColor: c })}
+            />
+          </div>
+
+          {savedMsg && <p className="text-xs text-success">{savedMsg}</p>}
+        </div>
+
+        {/* Step 4 — College goals */}
+        <div className="card space-y-5">
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            🎯 Step 4 · Your college goals
+          </h2>
+          <p className="text-sm text-muted">
+            Tell coaches what kind of program you&apos;re looking for. This shows up on your profile so coaches know whether you&apos;re a fit.
+          </p>
+
+          <div>
+            <label className="label">Divisions you&apos;re open to</label>
+            <DivisionPills
+              selected={divisions}
+              onChange={setDivisions}
+              options={DIVISIONS}
+            />
+            <p className="mt-2 text-xs text-muted">Tap to toggle. Pick all that apply.</p>
+          </div>
+
+          <div>
+            <label className="label">Region preference</label>
+            <select
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              className="input"
+            >
+              {REGION_OPTIONS.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="label">Top schools you&apos;re interested in</label>
+            <div className="flex gap-2">
+              <input
+                value={schoolInput}
+                onChange={(e) => setSchoolInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTargetSchool())}
+                className="input flex-1"
+                placeholder="Type to add… e.g. Stanford"
+                disabled={targetSchools.length >= 5}
+              />
+              <button
+                type="button"
+                onClick={addTargetSchool}
+                disabled={targetSchools.length >= 5}
+                className="btn-secondary shrink-0"
+              >
+                Add
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-muted">
+              Add up to 5 schools coaches should know you&apos;re interested in.
+            </p>
+            {targetSchools.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {targetSchools.map((s) => (
+                  <span
+                    key={s}
+                    className="inline-flex items-center gap-1 rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-sm text-brand-light"
+                  >
+                    {s}
+                    <button
+                      type="button"
+                      onClick={() => setTargetSchools(targetSchools.filter((x) => x !== s))}
+                      className="ml-1 text-muted hover:text-white"
+                      aria-label={`Remove ${s}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            disabled={pending}
+            className="btn-primary w-full"
+            onClick={() =>
+              start(async () => {
+                await updateCollegeGoals({
+                  divisions,
+                  regions: previewRegions,
+                  targetSchools,
+                });
+                setSavedMsg("College goals saved");
+                setTimeout(() => setSavedMsg(""), 2000);
+              })
+            }
+          >
+            Save college goals
+          </button>
+        </div>
       </div>
 
       <div className="xl:sticky xl:top-8 xl:self-start">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">Live preview</p>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">
+          Live preview · public profile
+        </p>
         <div className="overflow-hidden rounded-2xl border border-border shadow-2xl shadow-black/50">
           <PublicProfileView
             compact
@@ -143,11 +367,14 @@ export function ProfileEditor({
             state={profile.state}
             bio={profile.bio}
             photoUrl={profile.photoUrl}
+            primaryColor={colors.primaryColor}
+            secondaryColor={colors.secondaryColor}
+            accentColor={colors.accentColor}
             highlights={[]}
             events={[]}
-            divisions={profile.collegeGoals?.divisions ?? []}
-            regions={profile.collegeGoals?.regions ?? []}
-            targetSchools={profile.collegeGoals?.targetSchools ?? []}
+            divisions={divisions}
+            regions={previewRegions}
+            targetSchools={targetSchools}
           />
         </div>
       </div>

@@ -29,15 +29,15 @@ export default async function AnalyticsPage() {
 
       {!profile.isPremium && (
         <div className="card mt-6 alert-warning">
-          <p className="font-medium text-accent">Free tier</p>
-          <p className="text-sm text-accent">
+          <p className="font-medium text-brand-light">Free tier</p>
+          <p className="text-sm text-brand-light">
             You see aggregate views only. Upgrade to Premium ($14.99/mo) to see coach names.
           </p>
         </div>
       )}
 
       <div className="card mt-6">
-        <p className="text-3xl font-display text-accent">{profile.profileViews.length}</p>
+        <p className="text-3xl font-display text-brand-light">{profile.profileViews.length}</p>
         <p className="text-sm text-muted">Total profile views</p>
       </div>
 

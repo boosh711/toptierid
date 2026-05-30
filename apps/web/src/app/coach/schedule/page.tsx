@@ -39,7 +39,7 @@ export default async function CoachSchedulePage() {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold">{name}</p>
-                    <p className="text-accent">{e.title}</p>
+                    <p className="text-brand-light">{e.title}</p>
                     <p className="text-sm text-muted">
                       {format(e.startsAt, "EEE, MMM d · h:mm a")}
                     </p>

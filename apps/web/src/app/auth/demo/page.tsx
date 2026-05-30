@@ -34,7 +34,7 @@ export default function DemoPage() {
           ))}
         </div>
         <p className="mt-6 text-center text-sm">
-          <Link href="/auth/login" className="text-accent hover:underline">
+          <Link href="/auth/login" className="text-brand-light hover:underline">
             Manual login
           </Link>
         </p>

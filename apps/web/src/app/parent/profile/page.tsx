@@ -27,7 +27,7 @@ export default async function ParentProfilePage() {
               <div><dt className="text-muted">Club</dt><dd>{a.club}</dd></div>
               <div className="md:col-span-2"><dt className="text-muted">Bio</dt><dd>{a.bio}</dd></div>
             </dl>
-            <Link href={`/p/${a.slug}`} className="mt-4 inline-block text-sm text-accent">
+            <Link href={`/p/${a.slug}`} className="mt-4 inline-block text-sm text-brand-light">
               View public page →
             </Link>
             <p className="mt-4 text-xs text-muted">

@@ -106,11 +106,13 @@ export async function updateProfileStyle(data: unknown) {
   const session = await getSession();
   if (!session?.athleteProfileId) throw new Error("Unauthorized");
   const parsed = profileStyleSchema.parse(data);
-  await prisma.athleteProfile.update({
+  const profile = await prisma.athleteProfile.update({
     where: { id: session.athleteProfileId },
-    data: { ...parsed, onboardingStep: { increment: 1 } },
+    data: parsed,
   });
   revalidatePath("/athlete");
+  revalidatePath("/athlete/profile");
+  revalidatePath(`/p/${profile.slug}`);
   return { ok: true };
 }
 
@@ -140,7 +142,12 @@ export async function updateCollegeGoals(data: unknown) {
     create: { athleteProfileId: session.athleteProfileId, ...parsed },
     update: parsed,
   });
+  const profile = await prisma.athleteProfile.findUnique({
+    where: { id: session.athleteProfileId },
+  });
   revalidatePath("/athlete");
+  revalidatePath("/athlete/profile");
+  if (profile) revalidatePath(`/p/${profile.slug}`);
   return { ok: true };
 }
 

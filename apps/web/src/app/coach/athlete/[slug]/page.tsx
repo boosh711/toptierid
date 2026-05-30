@@ -52,7 +52,7 @@ export default async function CoachAthletePage({
     <>
       <CoachNav />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <Link href="/coach" className="text-sm text-accent">← Discover</Link>
+        <Link href="/coach" className="text-sm text-brand-light">← Discover</Link>
 
         <div className="mt-4 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
@@ -75,7 +75,7 @@ export default async function CoachAthletePage({
                   <p className="text-sm text-muted">
                     {profile.club} · {profile.state}
                   </p>
-                  <Link href={`/p/${profile.slug}`} target="_blank" className="mt-2 inline-block text-sm text-accent">
+                  <Link href={`/p/${profile.slug}`} target="_blank" className="mt-2 inline-block text-sm text-brand-light">
                     Public profile ↗
                   </Link>
                 </div>

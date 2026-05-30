@@ -19,7 +19,7 @@ export default async function CoachInboxPage() {
             const last = t.messages[0];
             return (
               <li key={t.id}>
-                <Link href={`/coach/inbox/${t.id}`} className="card block hover:border-accent">
+                <Link href={`/coach/inbox/${t.id}`} className="card block hover:border-brand">
                   <p className="font-semibold">
                     {athlete?.user
                       ? `${athlete.user.firstName} ${athlete.user.lastName}`

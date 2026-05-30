@@ -19,7 +19,7 @@ export default async function AthleteInboxPage() {
             const last = t.messages[0];
             return (
               <li key={t.id}>
-                <Link href={`/athlete/inbox/${t.id}`} className="card block hover:border-accent">
+                <Link href={`/athlete/inbox/${t.id}`} className="card block hover:border-brand">
                   <p className="font-semibold">{t.subject ?? "Conversation"}</p>
                   {last && (
                     <p className="mt-1 truncate text-sm text-muted">

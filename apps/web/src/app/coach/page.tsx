@@ -69,7 +69,7 @@ export default async function CoachDiscoverPage({
               <a
                 key={p}
                 href={`/coach?page=${p}`}
-                className={`rounded px-3 py-1 text-sm ${p === page ? "bg-accent text-black" : "bg-surface"}`}
+                className={`rounded px-3 py-1 text-sm ${p === page ? "bg-brand text-white" : "bg-surface"}`}
               >
                 {p}
               </a>

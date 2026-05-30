@@ -16,8 +16,9 @@ const config: Config = {
           strong: "rgba(255,255,255,0.14)",
         },
         accent: {
-          DEFAULT: "#FACC15",
-          dim: "#CA8A04",
+          DEFAULT: "#1E6BD6",
+          dim: "#1557B0",
+          light: "#3D84E8",
         },
         brand: {
           DEFAULT: "#1E6BD6",
@@ -37,7 +38,11 @@ const config: Config = {
       },
       backgroundImage: {
         "profile-gradient": "linear-gradient(180deg, #12121a 0%, #050508 100%)",
-        "hero-glow": "radial-gradient(ellipse at top, rgba(30,107,214,0.15) 0%, transparent 60%)",
+        "hero-glow": "radial-gradient(ellipse at top, rgba(30,107,214,0.2) 0%, transparent 60%)",
+      },
+      boxShadow: {
+        brand: "0 0 24px rgba(30, 107, 214, 0.35)",
+        "brand-lg": "0 8px 32px rgba(30, 107, 214, 0.4)",
       },
     },
   },

@@ -31,7 +31,7 @@ export function CoachNav({ active }: { active?: string }) {
                 href={t.href}
                 className={`flex min-h-[44px] items-center whitespace-nowrap rounded-lg px-4 py-2.5 ${
                   isActive
-                    ? "bg-accent font-semibold text-black"
+                    ? "bg-brand font-semibold text-white"
                     : "text-muted hover:bg-surface-elevated hover:text-white"
                 }`}
               >

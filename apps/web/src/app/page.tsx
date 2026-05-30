@@ -22,7 +22,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden px-4 py-24">
         <div className="pointer-events-none absolute inset-0 bg-hero-glow" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-4 font-display text-sm uppercase tracking-[0.25em] text-accent">
+          <p className="mb-4 font-display text-sm uppercase tracking-[0.25em] text-brand-light">
             Girls&apos; Soccer · Recruiting
           </p>
           <h1 className="font-display text-4xl uppercase leading-tight tracking-wide md:text-5xl">
@@ -39,10 +39,10 @@ export default function LandingPage() {
             <Link href="/auth/signup?role=athlete" className="btn-primary px-8 py-3 text-base">
               Build your profile
             </Link>
-            <Link href="/auth/signup?role=coach" className="btn-secondary px-8 py-3 text-base">
+            <Link href="/auth/signup?role=coach" className="btn-coach">
               I&apos;m a coach
             </Link>
-            <Link href="/auth/demo" className="text-sm text-muted underline hover:text-accent">
+            <Link href="/auth/demo" className="text-sm text-muted underline hover:text-brand-light">
               Try demo accounts
             </Link>
           </div>
@@ -60,17 +60,17 @@ export default function LandingPage() {
           ].map((tier) => (
             <div
               key={tier.name}
-              className={`card ${"highlight" in tier && tier.highlight ? "border-accent ring-1 ring-accent/50" : ""}`}
+              className={`card ${"highlight" in tier && tier.highlight ? "border-brand ring-1 ring-brand/50" : ""}`}
             >
               <h3 className="font-semibold text-white">{tier.name}</h3>
-              <p className="mt-2 font-display text-2xl text-accent">
+              <p className="mt-2 font-display text-2xl text-brand-light">
                 {tier.price}
                 <span className="text-sm font-sans text-muted">{tier.period}</span>
               </p>
               <ul className="mt-4 space-y-2 text-sm text-muted">
                 {tier.features.map((f) => (
                   <li key={f}>
-                    <span className="text-accent">✓</span> {f}
+                    <span className="text-brand-light">✓</span> {f}
                   </li>
                 ))}
               </ul>
@@ -87,7 +87,7 @@ export default function LandingPage() {
             { title: "Parents", desc: "Supervisory view of profile, messages, and premium status." },
           ].map((item) => (
             <div key={item.title} className="text-center">
-              <h3 className="font-display text-lg uppercase tracking-wide text-accent">{item.title}</h3>
+              <h3 className="font-display text-lg uppercase tracking-wide text-brand-light">{item.title}</h3>
               <p className="mt-2 text-muted">{item.desc}</p>
             </div>
           ))}
