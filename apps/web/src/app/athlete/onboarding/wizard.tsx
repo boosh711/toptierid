@@ -120,7 +120,11 @@ export function OnboardingWizard({
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
               start(async () => {
-                await uploadPhoto(fd);
+                const res = await uploadPhoto(fd);
+                if (res?.error) {
+                  alert(res.error);
+                  return;
+                }
                 next();
               });
             }}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   updateAthleteBasics,
@@ -47,7 +48,12 @@ export function ProfileEditor({
   profile: Profile;
   user: { firstName: string; lastName: string };
 }) {
+  const router = useRouter();
   const [pending, start] = useTransition();
+  const [photoUrl, setPhotoUrl] = useState<string | null>(profile.photoUrl);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState("");
+  const [photoSaved, setPhotoSaved] = useState(false);
   const [colors, setColors] = useState({
     primaryColor: profile.primaryColor,
     secondaryColor: profile.secondaryColor,
@@ -184,15 +190,77 @@ export function ProfileEditor({
           className="card space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
+            setPhotoError("");
             const fd = new FormData(e.currentTarget);
-            start(async () => { await uploadPhoto(fd); });
+            start(async () => {
+              const res = await uploadPhoto(fd);
+              if (res?.error) {
+                setPhotoError(res.error);
+                return;
+              }
+              if (res?.url) {
+                setPhotoUrl(res.url);
+                if (photoPreview) URL.revokeObjectURL(photoPreview);
+                setPhotoPreview(null);
+                e.currentTarget.reset();
+                setPhotoSaved(true);
+                setTimeout(() => setPhotoSaved(false), 2000);
+              }
+              router.refresh();
+            });
           }}
         >
           <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
             📷 Photo
           </h2>
-          <input name="file" type="file" accept="image/*" className="input" />
-          <button type="submit" className="btn-secondary w-full">Upload photo</button>
+          <p className="text-xs text-muted">
+            Shown on your public Digital ID. JPG or PNG, up to 4 MB.
+          </p>
+          <div className="flex items-center gap-4">
+            <div
+              className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-brand/40 bg-surface-elevated text-xl font-bold text-brand-light"
+              style={
+                photoPreview || photoUrl
+                  ? undefined
+                  : { background: `linear-gradient(135deg, ${colors.primaryColor}, ${colors.secondaryColor})` }
+              }
+            >
+              {photoPreview || photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={photoPreview || photoUrl || ""}
+                  alt="Profile preview"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span>{user.firstName[0]}{user.lastName[0]}</span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <input
+                name="file"
+                type="file"
+                accept="image/*"
+                className="input"
+                onChange={(e) => {
+                  setPhotoError("");
+                  const file = e.target.files?.[0];
+                  if (!file) {
+                    if (photoPreview) URL.revokeObjectURL(photoPreview);
+                    setPhotoPreview(null);
+                    return;
+                  }
+                  if (photoPreview) URL.revokeObjectURL(photoPreview);
+                  setPhotoPreview(URL.createObjectURL(file));
+                }}
+              />
+            </div>
+          </div>
+          {photoError && <p className="text-xs text-red-400">{photoError}</p>}
+          {photoSaved && <p className="text-xs text-success">Photo saved — your public profile is updated.</p>}
+          <button type="submit" disabled={pending} className="btn-primary w-full">
+            {pending ? "Saving…" : "Save photo"}
+          </button>
         </form>
 
         {/* Step 3 — Colors (public profile only) */}
@@ -366,7 +434,7 @@ export function ProfileEditor({
             city={profile.city}
             state={profile.state}
             bio={profile.bio}
-            photoUrl={profile.photoUrl}
+            photoUrl={photoPreview || photoUrl}
             primaryColor={colors.primaryColor}
             secondaryColor={colors.secondaryColor}
             accentColor={colors.accentColor}

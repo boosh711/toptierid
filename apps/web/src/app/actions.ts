@@ -19,7 +19,7 @@ import {
   destroySession,
   canCoachContactAthlete,
 } from "@/lib/auth";
-import { getStorageProvider } from "@/lib/storage";
+import { getStorageProvider, uploadProfilePhoto } from "@/lib/storage";
 import {
   athleteBasicsSchema,
   profileStyleSchema,
@@ -153,17 +153,26 @@ export async function updateCollegeGoals(data: unknown) {
 
 export async function uploadPhoto(formData: FormData) {
   const session = await getSession();
-  if (!session?.athleteProfileId) throw new Error("Unauthorized");
+  if (!session?.athleteProfileId) return { error: "Unauthorized" };
+
   const file = formData.get("file") as File;
-  if (!file?.size) throw new Error("No file");
-  const storage = getStorageProvider();
-  const { url } = await storage.upload(file, "photos");
-  await prisma.athleteProfile.update({
-    where: { id: session.athleteProfileId },
-    data: { photoUrl: url, onboardingStep: { increment: 1 } },
-  });
-  revalidatePath("/athlete");
-  return { url };
+  if (!file?.size) return { error: "Choose a photo to upload." };
+
+  try {
+    const { url } = await uploadProfilePhoto(file);
+    const profile = await prisma.athleteProfile.update({
+      where: { id: session.athleteProfileId },
+      data: { photoUrl: url, onboardingStep: { increment: 1 } },
+    });
+    revalidatePath("/athlete");
+    revalidatePath("/athlete/profile");
+    revalidatePath(`/p/${profile.slug}`);
+    return { ok: true as const, url };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Upload failed. Try again.",
+    };
+  }
 }
 
 export async function uploadHighlight(formData: FormData) {

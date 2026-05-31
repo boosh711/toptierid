@@ -36,3 +36,36 @@ export function getStorageProvider(): StorageProvider {
   }
   return new LocalStorageProvider();
 }
+
+const MAX_PROFILE_PHOTO_BYTES = 4 * 1024 * 1024;
+
+/** Profile photos must work on Vercel even without Blob — falls back to a data URL. */
+export async function uploadProfilePhoto(
+  file: File
+): Promise<{ url: string; sizeBytes: number }> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Please choose an image file (JPG, PNG, etc.).");
+  }
+
+  const bytes = Buffer.from(await file.arrayBuffer());
+  if (bytes.length > MAX_PROFILE_PHOTO_BYTES) {
+    throw new Error("Photo must be under 4 MB.");
+  }
+  if (bytes.length === 0) {
+    throw new Error("No file selected.");
+  }
+
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    return getStorageProvider().upload(file, "photos");
+  }
+
+  if (!process.env.VERCEL) {
+    return getStorageProvider().upload(file, "photos");
+  }
+
+  const base64 = bytes.toString("base64");
+  return {
+    url: `data:${file.type};base64,${base64}`,
+    sizeBytes: bytes.length,
+  };
+}
