@@ -9,6 +9,9 @@ const russo = Russo_One({ weight: "400", subsets: ["latin"], variable: "--font-r
 export const metadata: Metadata = {
   title: "TOP TIER ID — Direct Connection. No Middlemen.",
   description: "Recruiting platform connecting high school athletes with college coaches.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
