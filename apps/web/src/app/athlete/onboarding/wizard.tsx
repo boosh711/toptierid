@@ -6,7 +6,6 @@ import {
   updateProfileStyle,
   updateCollegeGoals,
   updateSlug,
-  uploadPhoto,
 } from "@/app/actions";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
@@ -118,11 +117,16 @@ export function OnboardingWizard({
             className="space-y-4"
             onSubmit={(e) => {
               e.preventDefault();
-              const fd = new FormData(e.currentTarget);
+              const form = e.currentTarget;
+              const fd = new FormData(form);
               start(async () => {
-                const res = await uploadPhoto(fd);
-                if (res?.error) {
-                  alert(res.error);
+                const response = await fetch("/api/athlete/profile-photo", {
+                  method: "POST",
+                  body: fd,
+                });
+                const res = await response.json();
+                if (!response.ok || res.error) {
+                  alert(res.error || "Upload failed. Try again.");
                   return;
                 }
                 next();

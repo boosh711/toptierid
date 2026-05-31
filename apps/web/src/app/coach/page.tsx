@@ -2,6 +2,7 @@ import { CoachNav } from "@/components/nav-coach";
 import { getSession } from "@/lib/auth";
 import { searchAthletes } from "@/lib/search";
 import { AthleteProfileCard } from "@/components/athlete-profile-card";
+import { getProfilePhotoUrl } from "@/lib/profile-photo";
 import { prisma } from "@top-tier-id/database";
 import { Suspense } from "react";
 import { DiscoverFilters } from "./discover-filters";
@@ -58,7 +59,7 @@ export default async function CoachDiscoverPage({
               club={a.club}
               state={a.state}
               gpa={a.gpa}
-              photoUrl={a.photoUrl}
+              photoUrl={getProfilePhotoUrl(a.id, a.photoUrl, a.updatedAt.getTime())}
             />
           ))}
         </div>

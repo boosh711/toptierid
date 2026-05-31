@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@top-tier-id/database";
 import { PublicProfileView } from "@/components/public-profile";
+import { getProfilePhotoUrl } from "@/lib/profile-photo";
 import { getSession } from "@/lib/auth";
 import { recordProfileView } from "@/app/actions";
 
@@ -43,7 +44,7 @@ export default async function PublicProfilePage({
       city={profile.city}
       state={profile.state}
       bio={profile.bio}
-      photoUrl={profile.photoUrl}
+      photoUrl={getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime())}
       primaryColor={profile.primaryColor}
       secondaryColor={profile.secondaryColor}
       accentColor={profile.accentColor}

@@ -2,6 +2,7 @@ import { CoachNav } from "@/components/nav-coach";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@top-tier-id/database";
 import { AthleteProfileCard } from "@/components/athlete-profile-card";
+import { getProfilePhotoUrl } from "@/lib/profile-photo";
 
 export default async function CoachListPage() {
   const session = await getSession();
@@ -30,7 +31,11 @@ export default async function CoachListPage() {
                 club={f.athleteProfile.club}
                 state={f.athleteProfile.state}
                 gpa={f.athleteProfile.gpa}
-                photoUrl={f.athleteProfile.photoUrl}
+                photoUrl={getProfilePhotoUrl(
+                  f.athleteProfile.id,
+                  f.athleteProfile.photoUrl,
+                  f.athleteProfile.updatedAt.getTime()
+                )}
               />
               {f.athleteProfile.notes[0] && (
                 <p className="mt-2 truncate text-xs text-muted italic">

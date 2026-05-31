@@ -19,7 +19,8 @@ import {
   destroySession,
   canCoachContactAthlete,
 } from "@/lib/auth";
-import { getStorageProvider, uploadProfilePhoto } from "@/lib/storage";
+import { getStorageProvider } from "@/lib/storage";
+import { saveAthleteProfilePhoto } from "@/lib/profile-photo-server";
 import {
   athleteBasicsSchema,
   profileStyleSchema,
@@ -159,19 +160,8 @@ export async function uploadPhoto(formData: FormData) {
   if (!file?.size) return { error: "Choose a photo to upload." };
 
   try {
-    const { url } = await uploadProfilePhoto(file);
-    const profile = await prisma.athleteProfile.update({
-      where: { id: session.athleteProfileId },
-      data: { photoUrl: url, onboardingStep: { increment: 1 } },
-    });
-    revalidatePath("/athlete");
-    revalidatePath("/athlete/profile");
-    revalidatePath(`/p/${profile.slug}`);
-    return {
-      ok: true as const,
-      // Avoid sending large data URLs back to the client — they stay in the DB only.
-      url: url.startsWith("data:") ? undefined : url,
-    };
+    const { displayUrl } = await saveAthleteProfilePhoto(session.athleteProfileId, file);
+    return { ok: true as const, url: displayUrl };
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Upload failed. Try again.",

@@ -6,7 +6,6 @@ import {
   updateAthleteBasics,
   updateProfileStyle,
   updateCollegeGoals,
-  uploadPhoto,
 } from "@/app/actions";
 import { PublicProfileView } from "@/components/public-profile";
 import { ColorSwatchPicker, DivisionPills } from "@/components/color-swatch-picker";
@@ -15,9 +14,11 @@ import {
   BACKGROUND_PRESETS,
   lookupSchoolColors,
 } from "@/lib/profile-colors";
+import { getProfilePhotoUrl } from "@/lib/profile-photo";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
 type Profile = {
+  id: string;
   slug: string;
   position: string | null;
   gradYear: number | null;
@@ -29,6 +30,7 @@ type Profile = {
   state: string | null;
   bio: string | null;
   photoUrl: string | null;
+  updatedAt: Date;
   primaryColor: string;
   secondaryColor: string;
   accentColor: string | null;
@@ -81,7 +83,9 @@ export function ProfileEditor({
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [photoUrl, setPhotoUrl] = useState<string | null>(profile.photoUrl);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(
+    getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime())
+  );
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState("");
   const [photoSaved, setPhotoSaved] = useState(false);
@@ -92,14 +96,8 @@ export function ProfileEditor({
   });
 
   useEffect(() => {
-    if (profile.photoUrl) {
-      setPhotoUrl(profile.photoUrl);
-      setPhotoPreview((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-    }
-  }, [profile.photoUrl]);
+    setPhotoUrl(getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime()));
+  }, [profile.id, profile.photoUrl, profile.updatedAt]);
   const [schoolQuery, setSchoolQuery] = useState("");
   const [schoolMatch, setSchoolMatch] = useState<string | null>(null);
   const [divisions, setDivisions] = useState<string[]>(
@@ -247,22 +245,24 @@ export function ProfileEditor({
                 const fd = new FormData();
                 fd.set("file", compressed);
 
-                const res = await uploadPhoto(fd);
-                if (res?.error) {
-                  setPhotoError(res.error);
+                const response = await fetch("/api/athlete/profile-photo", {
+                  method: "POST",
+                  body: fd,
+                });
+                const res = await response.json();
+                if (!response.ok || res.error) {
+                  setPhotoError(res.error || "Upload failed. Try again.");
                   return;
                 }
-                if (res?.ok) {
-                  if (res.url) {
-                    if (currentPreview) URL.revokeObjectURL(currentPreview);
-                    setPhotoPreview(null);
-                    setPhotoUrl(res.url);
-                  }
-                  form.reset();
-                  setPhotoSaved(true);
-                  setTimeout(() => setPhotoSaved(false), 2000);
-                  router.refresh();
+                if (res.url) {
+                  if (currentPreview) URL.revokeObjectURL(currentPreview);
+                  setPhotoPreview(null);
+                  setPhotoUrl(res.url);
                 }
+                form.reset();
+                setPhotoSaved(true);
+                setTimeout(() => setPhotoSaved(false), 2000);
+                router.refresh();
               } catch {
                 setPhotoError("Upload failed. Try again.");
               }
