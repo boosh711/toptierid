@@ -167,7 +167,11 @@ export async function uploadPhoto(formData: FormData) {
     revalidatePath("/athlete");
     revalidatePath("/athlete/profile");
     revalidatePath(`/p/${profile.slug}`);
-    return { ok: true as const, url };
+    return {
+      ok: true as const,
+      // Avoid sending large data URLs back to the client — they stay in the DB only.
+      url: url.startsWith("data:") ? undefined : url,
+    };
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Upload failed. Try again.",

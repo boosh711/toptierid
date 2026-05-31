@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   updateAthleteBasics,
   updateProfileStyle,
@@ -41,6 +41,37 @@ type Profile = {
 
 const REGION_OPTIONS = ["Open to anywhere", ...US_REGIONS] as const;
 
+async function compressProfilePhoto(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || typeof createImageBitmap !== "function") {
+    return file;
+  }
+
+  const bitmap = await createImageBitmap(file);
+  const maxWidth = 960;
+  const scale = Math.min(1, maxWidth / bitmap.width);
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    bitmap.close();
+    return file;
+  }
+
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", 0.82);
+  });
+  if (!blob) return file;
+
+  const baseName = file.name.replace(/\.[^.]+$/, "") || "profile";
+  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+}
+
 export function ProfileEditor({
   profile,
   user,
@@ -59,6 +90,16 @@ export function ProfileEditor({
     secondaryColor: profile.secondaryColor,
     accentColor: profile.accentColor || profile.primaryColor,
   });
+
+  useEffect(() => {
+    if (profile.photoUrl) {
+      setPhotoUrl(profile.photoUrl);
+      setPhotoPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+    }
+  }, [profile.photoUrl]);
   const [schoolQuery, setSchoolQuery] = useState("");
   const [schoolMatch, setSchoolMatch] = useState<string | null>(null);
   const [divisions, setDivisions] = useState<string[]>(
@@ -191,22 +232,40 @@ export function ProfileEditor({
           onSubmit={(e) => {
             e.preventDefault();
             setPhotoError("");
-            const fd = new FormData(e.currentTarget);
+            const form = e.currentTarget;
+            const fileInput = form.elements.namedItem("file") as HTMLInputElement | null;
+            const file = fileInput?.files?.[0];
+            if (!file) {
+              setPhotoError("Choose a photo to upload.");
+              return;
+            }
+
+            const currentPreview = photoPreview;
             start(async () => {
-              const res = await uploadPhoto(fd);
-              if (res?.error) {
-                setPhotoError(res.error);
-                return;
+              try {
+                const compressed = await compressProfilePhoto(file);
+                const fd = new FormData();
+                fd.set("file", compressed);
+
+                const res = await uploadPhoto(fd);
+                if (res?.error) {
+                  setPhotoError(res.error);
+                  return;
+                }
+                if (res?.ok) {
+                  if (res.url) {
+                    if (currentPreview) URL.revokeObjectURL(currentPreview);
+                    setPhotoPreview(null);
+                    setPhotoUrl(res.url);
+                  }
+                  form.reset();
+                  setPhotoSaved(true);
+                  setTimeout(() => setPhotoSaved(false), 2000);
+                  router.refresh();
+                }
+              } catch {
+                setPhotoError("Upload failed. Try again.");
               }
-              if (res?.url) {
-                setPhotoUrl(res.url);
-                if (photoPreview) URL.revokeObjectURL(photoPreview);
-                setPhotoPreview(null);
-                e.currentTarget.reset();
-                setPhotoSaved(true);
-                setTimeout(() => setPhotoSaved(false), 2000);
-              }
-              router.refresh();
             });
           }}
         >
