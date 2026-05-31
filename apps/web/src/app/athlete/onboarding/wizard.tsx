@@ -7,6 +7,7 @@ import {
   updateCollegeGoals,
   updateSlug,
 } from "@/app/actions";
+import { prepareProfilePhoto } from "@/lib/prepare-profile-photo";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
 type Profile = {
@@ -118,23 +119,35 @@ export function OnboardingWizard({
             onSubmit={(e) => {
               e.preventDefault();
               const form = e.currentTarget;
-              const fd = new FormData(form);
+              const fileInput = form.elements.namedItem("file") as HTMLInputElement | null;
+              const file = fileInput?.files?.[0];
+              if (!file) {
+                alert("Choose a photo to upload.");
+                return;
+              }
               start(async () => {
-                const response = await fetch("/api/athlete/profile-photo", {
-                  method: "POST",
-                  body: fd,
-                });
-                const res = await response.json();
-                if (!response.ok || res.error) {
-                  alert(res.error || "Upload failed. Try again.");
-                  return;
+                try {
+                  const prepared = await prepareProfilePhoto(file);
+                  const fd = new FormData();
+                  fd.set("file", prepared);
+                  const response = await fetch("/api/athlete/profile-photo", {
+                    method: "POST",
+                    body: fd,
+                  });
+                  const res = await response.json();
+                  if (!response.ok || res.error) {
+                    alert(res.error || "Upload failed. Try again.");
+                    return;
+                  }
+                  next();
+                } catch (error) {
+                  alert(error instanceof Error ? error.message : "Upload failed. Try again.");
                 }
-                next();
               });
             }}
           >
             <h2 className="font-semibold">Profile photo</h2>
-            <input name="file" type="file" accept="image/*" className="input" />
+            <input name="file" type="file" accept="image/*,.heic,.heif" className="input" />
             <button type="submit" disabled={pending} className="btn-primary">Upload & continue</button>
             <button type="button" onClick={next} className="btn-secondary ml-2">Skip</button>
           </form>

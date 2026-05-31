@@ -15,6 +15,7 @@ import {
   lookupSchoolColors,
 } from "@/lib/profile-colors";
 import { getProfilePhotoUrl } from "@/lib/profile-photo";
+import { prepareProfilePhoto, previewProfilePhoto } from "@/lib/prepare-profile-photo";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
 type Profile = {
@@ -42,37 +43,6 @@ type Profile = {
 };
 
 const REGION_OPTIONS = ["Open to anywhere", ...US_REGIONS] as const;
-
-async function compressProfilePhoto(file: File): Promise<File> {
-  if (!file.type.startsWith("image/") || typeof createImageBitmap !== "function") {
-    return file;
-  }
-
-  const bitmap = await createImageBitmap(file);
-  const maxWidth = 960;
-  const scale = Math.min(1, maxWidth / bitmap.width);
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    bitmap.close();
-    return file;
-  }
-
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.82);
-  });
-  if (!blob) return file;
-
-  const baseName = file.name.replace(/\.[^.]+$/, "") || "profile";
-  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
-}
 
 export function ProfileEditor({
   profile,
@@ -241,7 +211,7 @@ export function ProfileEditor({
             const currentPreview = photoPreview;
             start(async () => {
               try {
-                const compressed = await compressProfilePhoto(file);
+                const compressed = await prepareProfilePhoto(file);
                 const fd = new FormData();
                 fd.set("file", compressed);
 
@@ -263,8 +233,10 @@ export function ProfileEditor({
                 setPhotoSaved(true);
                 setTimeout(() => setPhotoSaved(false), 2000);
                 router.refresh();
-              } catch {
-                setPhotoError("Upload failed. Try again.");
+              } catch (error) {
+                setPhotoError(
+                  error instanceof Error ? error.message : "Upload failed. Try again."
+                );
               }
             });
           }}
@@ -273,7 +245,7 @@ export function ProfileEditor({
             📷 Photo
           </h2>
           <p className="text-xs text-muted">
-            Shown on your public Digital ID. JPG or PNG, up to 4 MB.
+            Shown on your public Digital ID. JPG, PNG, or iPhone HEIC, up to 4 MB.
           </p>
           <div className="flex items-center gap-4">
             <div
@@ -299,7 +271,7 @@ export function ProfileEditor({
               <input
                 name="file"
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic,.heif"
                 className="input"
                 onChange={(e) => {
                   setPhotoError("");
@@ -309,8 +281,20 @@ export function ProfileEditor({
                     setPhotoPreview(null);
                     return;
                   }
-                  if (photoPreview) URL.revokeObjectURL(photoPreview);
-                  setPhotoPreview(URL.createObjectURL(file));
+                  void previewProfilePhoto(file)
+                    .then((url) => {
+                      if (photoPreview) URL.revokeObjectURL(photoPreview);
+                      setPhotoPreview(url);
+                    })
+                    .catch((error) => {
+                      if (photoPreview) URL.revokeObjectURL(photoPreview);
+                      setPhotoPreview(null);
+                      setPhotoError(
+                        error instanceof Error
+                          ? error.message
+                          : "Could not load that photo."
+                      );
+                    });
                 }}
               />
             </div>
