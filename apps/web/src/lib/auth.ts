@@ -21,7 +21,10 @@ export type SessionUser = {
 async function enrichUser(userId: string): Promise<SessionUser | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { athleteProfile: true, coachProfile: true },
+    include: {
+      athleteProfile: { select: { id: true } },
+      coachProfile: { select: { id: true } },
+    },
   });
   if (!user) return null;
   return {

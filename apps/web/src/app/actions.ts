@@ -49,7 +49,16 @@ export async function loginAction(formData: FormData) {
   } catch (e) {
     if (isRedirectError(e)) throw e;
     console.error("[loginAction]", e);
-    redirect("/auth/login?error=server");
+    const code =
+      typeof e === "object" && e !== null && "code" in e
+        ? String((e as { code?: string }).code)
+        : "";
+    const msg = e instanceof Error ? e.message : "";
+    const needsMigration =
+      code === "P2022" ||
+      msg.includes("does not exist") ||
+      msg.includes("column");
+    redirect(`/auth/login?error=${needsMigration ? "migration" : "server"}`);
   }
 }
 

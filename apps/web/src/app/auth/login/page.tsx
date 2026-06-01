@@ -22,8 +22,14 @@ export default async function LoginPage({
         )}
         {error === "server" && (
           <p className="mb-4 rounded-lg alert-error">
-            Could not reach the database. Check Vercel env vars (DATABASE_URL) and run db:push + db:seed.
-            Visit /api/health for details.
+            Could not complete login. Visit <a href="/api/health" className="underline">/api/health</a> to
+            confirm the database is connected.
+          </p>
+        )}
+        {error === "migration" && (
+          <p className="mb-4 rounded-lg alert-error">
+            Database schema is out of date after a deploy. Redeploy the app (build runs db:push) or run{" "}
+            <code className="text-xs">pnpm db:push</code> with your production DATABASE_URL.
           </p>
         )}
         <form action={loginAction} className="space-y-4">

@@ -23,6 +23,24 @@ export function ensureDatabaseUrl(): string | undefined {
   return url;
 }
 
+/** Prefer a direct connection for schema changes (Neon/Vercel). */
+export function ensureMigrateDatabaseUrl(): string | undefined {
+  const migrateKeys = [
+    "POSTGRES_URL_NON_POOLING",
+    "DATABASE_URL",
+    "POSTGRES_PRISMA_URL",
+    "POSTGRES_URL",
+  ] as const;
+  for (const key of migrateKeys) {
+    const value = process.env[key];
+    if (value) {
+      process.env.DATABASE_URL = value;
+      return value;
+    }
+  }
+  return undefined;
+}
+
 export function databaseEnvStatus() {
   return {
     configured: DATABASE_ENV_KEYS.filter((k) => !!process.env[k]),

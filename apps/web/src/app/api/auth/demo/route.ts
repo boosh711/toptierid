@@ -17,6 +17,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL(roleHomePath(user.role), req.url));
   } catch (e) {
     console.error("[demo login]", e);
-    return NextResponse.redirect(new URL("/auth/login?error=server", req.url));
+    const code =
+      typeof e === "object" && e !== null && "code" in e
+        ? String((e as { code?: string }).code)
+        : "";
+    const msg = e instanceof Error ? e.message : "";
+    const needsMigration =
+      code === "P2022" ||
+      msg.includes("does not exist") ||
+      msg.includes("column");
+    return NextResponse.redirect(
+      new URL(`/auth/login?error=${needsMigration ? "migration" : "server"}`, req.url)
+    );
   }
 }
