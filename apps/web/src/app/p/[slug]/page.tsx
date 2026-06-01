@@ -45,6 +45,8 @@ export default async function PublicProfilePage({
       state={profile.state}
       bio={profile.bio}
       photoUrl={getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime())}
+      photoPositionX={profile.photoPositionX}
+      photoPositionY={profile.photoPositionY}
       primaryColor={profile.primaryColor}
       secondaryColor={profile.secondaryColor}
       accentColor={profile.accentColor}

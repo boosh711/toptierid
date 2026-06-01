@@ -51,7 +51,9 @@ model AthleteProfile {
   city           String?
   state          String?
   bio            String?
-  photoUrl       String?
+  photoUrl         String?
+  photoPositionX   Float    @default(50)
+  photoPositionY   Float    @default(22)
   instagramUrl   String?
   tiktokUrl      String?
   youtubeUrl     String?

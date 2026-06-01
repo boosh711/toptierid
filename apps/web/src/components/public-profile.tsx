@@ -2,6 +2,12 @@ import { format } from "date-fns";
 import { BRAND } from "@top-tier-id/types";
 import type { SocialLinks } from "@/lib/social-links";
 import { SocialConnect } from "@/components/social-connect";
+import {
+  HERO_FRAME_CLASS,
+  type PhotoPosition,
+  parsePhotoPosition,
+  photoObjectPosition,
+} from "@/lib/profile-hero";
 
 type Highlight = { id: string; title: string; url: string; thumbnailUrl?: string | null };
 type Event = {
@@ -30,6 +36,8 @@ type Props = {
   state?: string | null;
   bio?: string | null;
   photoUrl?: string | null;
+  photoPositionX?: number | null;
+  photoPositionY?: number | null;
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string | null;
@@ -70,6 +78,8 @@ export function PublicProfileView(props: Props) {
     highSchool,
     bio,
     photoUrl,
+    photoPositionX,
+    photoPositionY,
     primaryColor = "#1E6BD6",
     secondaryColor = "#0B1F3A",
     accentColor,
@@ -90,9 +100,8 @@ export function PublicProfileView(props: Props) {
     .filter(Boolean)
     .join(" • ");
 
-  const heroLayout = compact
-    ? "aspect-[3/4] min-h-[17.5rem] max-h-[22rem] w-full"
-    : "aspect-[3/4] min-h-[26rem] w-full max-h-[min(88vh,44rem)] sm:min-h-[28rem]";
+  const photoPosition = parsePhotoPosition(photoPositionX, photoPositionY);
+  const heroLayout = compact ? HERO_FRAME_CLASS.compact : HERO_FRAME_CLASS.full;
 
   return (
     <div
@@ -107,7 +116,8 @@ export function PublicProfileView(props: Props) {
           <img
             src={photoUrl}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover object-[center_12%]"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: photoObjectPosition(photoPosition) }}
           />
         ) : (
           <div

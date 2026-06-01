@@ -47,6 +47,11 @@ const optionalSocialField = z
     return trimmed ? trimmed : undefined;
   });
 
+export const photoPositionSchema = z.object({
+  photoPositionX: z.coerce.number().min(0).max(100),
+  photoPositionY: z.coerce.number().min(0).max(100),
+});
+
 export const socialLinksSchema = z.object({
   instagramUrl: optionalSocialField,
   tiktokUrl: optionalSocialField,

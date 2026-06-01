@@ -7,7 +7,9 @@ import {
   updateProfileStyle,
   updateCollegeGoals,
   updateSocialLinks,
+  updatePhotoPosition,
 } from "@/app/actions";
+import { PhotoPositionEditor } from "@/components/photo-position-editor";
 import { PublicProfileView } from "@/components/public-profile";
 import { ColorSwatchPicker, DivisionPills } from "@/components/color-swatch-picker";
 import {
@@ -17,6 +19,7 @@ import {
 } from "@/lib/profile-colors";
 import { getProfilePhotoUrl } from "@/lib/profile-photo";
 import { prepareProfilePhoto, previewProfilePhoto } from "@/lib/prepare-profile-photo";
+import { parsePhotoPosition, type PhotoPosition } from "@/lib/profile-hero";
 import { SOCIAL_FIELDS, type SocialLinks } from "@/lib/social-links";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
@@ -33,6 +36,8 @@ type Profile = {
   state: string | null;
   bio: string | null;
   photoUrl: string | null;
+  photoPositionX: number;
+  photoPositionY: number;
   instagramUrl: string | null;
   tiktokUrl: string | null;
   youtubeUrl: string | null;
@@ -66,6 +71,10 @@ export function ProfileEditor({
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState("");
   const [photoSaved, setPhotoSaved] = useState(false);
+  const [photoPosition, setPhotoPosition] = useState<PhotoPosition>(() =>
+    parsePhotoPosition(profile.photoPositionX, profile.photoPositionY)
+  );
+  const [positionSaved, setPositionSaved] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagramUrl: profile.instagramUrl,
     tiktokUrl: profile.tiktokUrl,
@@ -82,6 +91,10 @@ export function ProfileEditor({
   useEffect(() => {
     setPhotoUrl(getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime()));
   }, [profile.id, profile.photoUrl, profile.updatedAt]);
+
+  useEffect(() => {
+    setPhotoPosition(parsePhotoPosition(profile.photoPositionX, profile.photoPositionY));
+  }, [profile.photoPositionX, profile.photoPositionY]);
 
   useEffect(() => {
     setSocialLinks({
@@ -259,6 +272,7 @@ export function ProfileEditor({
                   if (currentPreview) URL.revokeObjectURL(currentPreview);
                   setPhotoPreview(null);
                   setPhotoUrl(res.url);
+                  setPhotoPosition({ x: 50, y: 22 });
                 }
                 form.reset();
                 setPhotoSaved(true);
@@ -335,6 +349,29 @@ export function ProfileEditor({
           <button type="submit" disabled={pending} className="btn-primary w-full">
             {pending ? "Saving…" : "Save photo"}
           </button>
+
+          {(photoPreview || photoUrl) && (
+            <PhotoPositionEditor
+              imageUrl={photoPreview || photoUrl || ""}
+              position={photoPosition}
+              onChange={setPhotoPosition}
+              saving={pending}
+              onSave={() =>
+                start(async () => {
+                  await updatePhotoPosition({
+                    photoPositionX: photoPosition.x,
+                    photoPositionY: photoPosition.y,
+                  });
+                  setPositionSaved(true);
+                  setTimeout(() => setPositionSaved(false), 2000);
+                  router.refresh();
+                })
+              }
+            />
+          )}
+          {positionSaved && (
+            <p className="text-xs text-success">Photo position saved.</p>
+          )}
         </form>
 
         {/* Connect — Social links */}
@@ -549,6 +586,8 @@ export function ProfileEditor({
             state={profile.state}
             bio={profile.bio}
             photoUrl={photoPreview || photoUrl}
+            photoPositionX={photoPosition.x}
+            photoPositionY={photoPosition.y}
             primaryColor={colors.primaryColor}
             secondaryColor={colors.secondaryColor}
             accentColor={colors.accentColor}

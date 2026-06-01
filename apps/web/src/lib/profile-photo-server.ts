@@ -7,7 +7,12 @@ export async function saveAthleteProfilePhoto(athleteProfileId: string, file: Fi
   const { url: storedUrl } = await uploadProfilePhoto(file);
   const profile = await prisma.athleteProfile.update({
     where: { id: athleteProfileId },
-    data: { photoUrl: storedUrl, onboardingStep: { increment: 1 } },
+    data: {
+      photoUrl: storedUrl,
+      photoPositionX: 50,
+      photoPositionY: 22,
+      onboardingStep: { increment: 1 },
+    },
   });
 
   revalidatePath("/athlete");

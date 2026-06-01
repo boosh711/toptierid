@@ -28,6 +28,7 @@ import {
   slugSchema,
   collegeGoalsSchema,
   socialLinksSchema,
+  photoPositionSchema,
   scheduleEventSchema,
   coachNoteSchema,
   messageSchema,
@@ -143,6 +144,25 @@ export async function updateSlug(slug: string) {
   revalidatePath("/athlete");
   revalidatePath(`/p/${parsed}`);
   return { ok: true, slug: parsed };
+}
+
+export async function updatePhotoPosition(data: unknown) {
+  const session = await getSession();
+  if (!session?.athleteProfileId) throw new Error("Unauthorized");
+  const parsed = photoPositionSchema.parse(data);
+
+  const profile = await prisma.athleteProfile.update({
+    where: { id: session.athleteProfileId },
+    data: {
+      photoPositionX: parsed.photoPositionX,
+      photoPositionY: parsed.photoPositionY,
+    },
+  });
+
+  revalidatePath("/athlete");
+  revalidatePath("/athlete/profile");
+  revalidatePath(`/p/${profile.slug}`);
+  return { ok: true };
 }
 
 export async function updateSocialLinks(data: unknown) {
