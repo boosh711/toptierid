@@ -90,7 +90,9 @@ export function PublicProfileView(props: Props) {
     .filter(Boolean)
     .join(" • ");
 
-  const heroHeight = compact ? "h-52" : "h-[min(72vh,28rem)] sm:h-[min(70vh,32rem)]";
+  const heroLayout = compact
+    ? "aspect-[3/4] min-h-[17.5rem] max-h-[22rem] w-full"
+    : "aspect-[3/4] min-h-[26rem] w-full max-h-[min(88vh,44rem)] sm:min-h-[28rem]";
 
   return (
     <div
@@ -99,13 +101,13 @@ export function PublicProfileView(props: Props) {
         background: `linear-gradient(180deg, ${bg} 0%, #050508 100%)`,
       }}
     >
-      <header className={`relative w-full overflow-hidden ${heroHeight}`}>
+      <header className={`relative overflow-hidden ${heroLayout}`}>
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoUrl}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+            className="absolute inset-0 h-full w-full object-cover object-[center_12%]"
           />
         ) : (
           <div
@@ -123,8 +125,8 @@ export function PublicProfileView(props: Props) {
             background: `linear-gradient(
               to bottom,
               transparent 0%,
-              transparent 35%,
-              ${bg}99 72%,
+              transparent 45%,
+              ${bg}88 78%,
               #050508 100%
             )`,
           }}
