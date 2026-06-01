@@ -52,6 +52,11 @@ model AthleteProfile {
   state          String?
   bio            String?
   photoUrl       String?
+  instagramUrl   String?
+  tiktokUrl      String?
+  youtubeUrl     String?
+  hudlUrl        String?
+  xUrl           String?
   primaryColor   String   @default("#1E6BD6")
   secondaryColor String   @default("#0B1F3A")
   accentColor    String?

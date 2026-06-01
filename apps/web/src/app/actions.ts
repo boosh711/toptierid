@@ -21,11 +21,13 @@ import {
 } from "@/lib/auth";
 import { getStorageProvider } from "@/lib/storage";
 import { saveAthleteProfilePhoto } from "@/lib/profile-photo-server";
+import { normalizeSocialLinks } from "@/lib/social-links";
 import {
   athleteBasicsSchema,
   profileStyleSchema,
   slugSchema,
   collegeGoalsSchema,
+  socialLinksSchema,
   scheduleEventSchema,
   coachNoteSchema,
   messageSchema,
@@ -132,6 +134,29 @@ export async function updateSlug(slug: string) {
   revalidatePath("/athlete");
   revalidatePath(`/p/${parsed}`);
   return { ok: true, slug: parsed };
+}
+
+export async function updateSocialLinks(data: unknown) {
+  const session = await getSession();
+  if (!session?.athleteProfileId) throw new Error("Unauthorized");
+  const parsed = socialLinksSchema.parse(data);
+  const normalized = normalizeSocialLinks(parsed);
+
+  const profile = await prisma.athleteProfile.update({
+    where: { id: session.athleteProfileId },
+    data: {
+      instagramUrl: normalized.instagramUrl,
+      tiktokUrl: normalized.tiktokUrl,
+      youtubeUrl: normalized.youtubeUrl,
+      hudlUrl: normalized.hudlUrl,
+      xUrl: normalized.xUrl,
+    },
+  });
+
+  revalidatePath("/athlete");
+  revalidatePath("/athlete/profile");
+  revalidatePath(`/p/${profile.slug}`);
+  return { ok: true, links: normalized };
 }
 
 export async function updateCollegeGoals(data: unknown) {

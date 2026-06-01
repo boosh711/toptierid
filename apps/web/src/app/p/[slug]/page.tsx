@@ -53,6 +53,13 @@ export default async function PublicProfilePage({
       divisions={profile.collegeGoals?.divisions ?? []}
       regions={profile.collegeGoals?.regions ?? []}
       targetSchools={profile.collegeGoals?.targetSchools ?? []}
+      socialLinks={{
+        instagramUrl: profile.instagramUrl,
+        tiktokUrl: profile.tiktokUrl,
+        youtubeUrl: profile.youtubeUrl,
+        hudlUrl: profile.hudlUrl,
+        xUrl: profile.xUrl,
+      }}
     />
   );
 }

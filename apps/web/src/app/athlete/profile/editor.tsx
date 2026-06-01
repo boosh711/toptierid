@@ -6,6 +6,7 @@ import {
   updateAthleteBasics,
   updateProfileStyle,
   updateCollegeGoals,
+  updateSocialLinks,
 } from "@/app/actions";
 import { PublicProfileView } from "@/components/public-profile";
 import { ColorSwatchPicker, DivisionPills } from "@/components/color-swatch-picker";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/profile-colors";
 import { getProfilePhotoUrl } from "@/lib/profile-photo";
 import { prepareProfilePhoto, previewProfilePhoto } from "@/lib/prepare-profile-photo";
+import { SOCIAL_FIELDS, type SocialLinks } from "@/lib/social-links";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
 type Profile = {
@@ -31,6 +33,11 @@ type Profile = {
   state: string | null;
   bio: string | null;
   photoUrl: string | null;
+  instagramUrl: string | null;
+  tiktokUrl: string | null;
+  youtubeUrl: string | null;
+  hudlUrl: string | null;
+  xUrl: string | null;
   updatedAt: Date;
   primaryColor: string;
   secondaryColor: string;
@@ -59,6 +66,13 @@ export function ProfileEditor({
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState("");
   const [photoSaved, setPhotoSaved] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+    instagramUrl: profile.instagramUrl,
+    tiktokUrl: profile.tiktokUrl,
+    youtubeUrl: profile.youtubeUrl,
+    hudlUrl: profile.hudlUrl,
+    xUrl: profile.xUrl,
+  });
   const [colors, setColors] = useState({
     primaryColor: profile.primaryColor,
     secondaryColor: profile.secondaryColor,
@@ -68,6 +82,23 @@ export function ProfileEditor({
   useEffect(() => {
     setPhotoUrl(getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime()));
   }, [profile.id, profile.photoUrl, profile.updatedAt]);
+
+  useEffect(() => {
+    setSocialLinks({
+      instagramUrl: profile.instagramUrl,
+      tiktokUrl: profile.tiktokUrl,
+      youtubeUrl: profile.youtubeUrl,
+      hudlUrl: profile.hudlUrl,
+      xUrl: profile.xUrl,
+    });
+  }, [
+    profile.instagramUrl,
+    profile.tiktokUrl,
+    profile.youtubeUrl,
+    profile.hudlUrl,
+    profile.xUrl,
+  ]);
+
   const [schoolQuery, setSchoolQuery] = useState("");
   const [schoolMatch, setSchoolMatch] = useState<string | null>(null);
   const [divisions, setDivisions] = useState<string[]>(
@@ -306,6 +337,46 @@ export function ProfileEditor({
           </button>
         </form>
 
+        {/* Connect — Social links */}
+        <form
+          className="card space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            start(async () => {
+              await updateSocialLinks(socialLinks);
+              setSavedMsg("Social links saved");
+              setTimeout(() => setSavedMsg(""), 2000);
+              router.refresh();
+            });
+          }}
+        >
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            🔗 Connect
+          </h2>
+          <p className="text-xs text-muted">
+            Add links to your social accounts. They appear as icons on your public Digital ID.
+          </p>
+          <div className="space-y-3">
+            {SOCIAL_FIELDS.map(({ key, label, placeholder }) => (
+              <div key={key}>
+                <label className="label">{label}</label>
+                <input
+                  type="text"
+                  value={socialLinks[key] ?? ""}
+                  onChange={(e) =>
+                    setSocialLinks((prev) => ({ ...prev, [key]: e.target.value }))
+                  }
+                  className="input"
+                  placeholder={placeholder}
+                />
+              </div>
+            ))}
+          </div>
+          <button type="submit" disabled={pending} className="btn-primary w-full">
+            Save social links
+          </button>
+        </form>
+
         {/* Step 3 — Colors (public profile only) */}
         <div className="card space-y-5">
           <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
@@ -486,6 +557,7 @@ export function ProfileEditor({
             divisions={divisions}
             regions={previewRegions}
             targetSchools={targetSchools}
+            socialLinks={socialLinks}
           />
         </div>
       </div>

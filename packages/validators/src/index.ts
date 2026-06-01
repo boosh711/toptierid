@@ -39,6 +39,22 @@ export const slugSchema = z
   .max(40)
   .regex(/^[a-z0-9-]+$/, "Use lowercase letters, numbers, and hyphens only");
 
+const optionalSocialField = z
+  .string()
+  .optional()
+  .transform((v) => {
+    const trimmed = v?.trim();
+    return trimmed ? trimmed : undefined;
+  });
+
+export const socialLinksSchema = z.object({
+  instagramUrl: optionalSocialField,
+  tiktokUrl: optionalSocialField,
+  youtubeUrl: optionalSocialField,
+  hudlUrl: optionalSocialField,
+  xUrl: optionalSocialField,
+});
+
 export const collegeGoalsSchema = z.object({
   divisions: z.array(z.string()).default([]),
   regions: z.array(z.string()).default([]),

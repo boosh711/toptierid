@@ -1,5 +1,7 @@
 import { format } from "date-fns";
 import { BRAND } from "@top-tier-id/types";
+import type { SocialLinks } from "@/lib/social-links";
+import { SocialConnect } from "@/components/social-connect";
 
 type Highlight = { id: string; title: string; url: string; thumbnailUrl?: string | null };
 type Event = {
@@ -36,6 +38,7 @@ type Props = {
   divisions: string[];
   regions: string[];
   targetSchools: string[];
+  socialLinks?: SocialLinks;
   compact?: boolean;
 };
 
@@ -75,6 +78,7 @@ export function PublicProfileView(props: Props) {
     divisions,
     regions,
     targetSchools,
+    socialLinks = {},
     compact = false,
   } = props;
 
@@ -86,83 +90,127 @@ export function PublicProfileView(props: Props) {
     .filter(Boolean)
     .join(" • ");
 
+  const heroHeight = compact ? "h-52" : "h-[min(72vh,28rem)] sm:h-[min(70vh,32rem)]";
+
   return (
     <div
-      className={`text-white ${compact ? "rounded-xl border border-border" : "min-h-screen"}`}
+      className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : "min-h-screen"}`}
       style={{
         background: `linear-gradient(180deg, ${bg} 0%, #050508 100%)`,
       }}
     >
-      <header className="relative overflow-hidden px-4 pb-6 pt-8">
+      <header className={`relative w-full overflow-hidden ${heroHeight}`}>
+        {photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+          />
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(160deg, ${accent}44 0%, ${bg} 50%, #050508 100%)`,
+            }}
+          />
+        )}
+
+        {/* Bottom fade so name and stats stay readable */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-40"
+          className="pointer-events-none absolute inset-0"
           style={{
-            background: `radial-gradient(ellipse at top, ${accent}33 0%, transparent 65%)`,
+            background: `linear-gradient(
+              to bottom,
+              transparent 0%,
+              transparent 35%,
+              ${bg}99 72%,
+              #050508 100%
+            )`,
           }}
         />
-        <div className={`relative mx-auto ${compact ? "max-w-full" : "max-w-lg"}`}>
-          <div className="mb-6 flex items-start justify-between">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-              Digital ID
-            </p>
-            <span className="font-display text-5xl leading-none" style={{ color: accent }}>
-              9
-            </span>
-          </div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
-          <div
-            className="mx-auto mb-5 flex h-32 w-32 items-center justify-center rounded-full border-2 border-dashed bg-black/20"
-            style={{ borderColor: `${accent}66` }}
+        {!compact && (
+          <p className="absolute left-4 top-4 z-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
+            Digital ID
+          </p>
+        )}
+
+        <span
+          className={`absolute right-4 z-10 font-display leading-none ${compact ? "top-3 text-4xl" : "top-4 text-6xl sm:text-7xl"}`}
+          style={{ color: accent }}
+        >
+          9
+        </span>
+
+        <div
+          className={`absolute bottom-0 left-0 right-0 z-10 ${compact ? "p-3" : "p-4 pb-5 sm:p-5 sm:pb-6"} ${compact ? "" : "mx-auto max-w-lg"}`}
+        >
+          <h1
+            className={`font-display uppercase leading-[0.95] tracking-wide text-white ${
+              compact ? "text-xl" : "text-3xl sm:text-4xl"
+            }`}
           >
-            {photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={photoUrl} alt="" className="h-full w-full rounded-full object-cover" />
-            ) : (
-              <span className="text-center text-xs text-muted">
-                Add Your
-                <br />
-                Photo
-              </span>
-            )}
-          </div>
-
-          <div className="mb-4 flex justify-center">
-            <span className="badge-verified">✓ Verified Athlete</span>
-          </div>
-
-          <h1 className="text-center font-display text-3xl tracking-wide">{fullName}</h1>
+            {firstName}
+            <br />
+            {lastName.toUpperCase()}
+          </h1>
           {subtitle && (
-            <p className="mt-2 text-center text-xs font-semibold uppercase tracking-widest text-muted">
+            <p
+              className={`mt-2 font-semibold uppercase tracking-widest ${
+                compact ? "text-[10px]" : "text-xs"
+              }`}
+              style={{ color: accent }}
+            >
               {subtitle}
             </p>
           )}
-          {(club || highSchool) && (
-            <p className="mt-2 text-center text-sm text-muted">
+          <div className="mt-3">
+            <span className="badge-verified">✓ Verified Athlete</span>
+          </div>
+          {(club || highSchool) && !compact && (
+            <p className="mt-2 text-sm text-white/60">
               {[club, highSchool].filter(Boolean).join(" · ")}
             </p>
           )}
         </div>
+
+        {!photoUrl && (
+          <div className="absolute inset-0 z-[1] flex items-center justify-center">
+            <span className="rounded-lg bg-black/40 px-4 py-2 text-center text-xs text-white/80">
+              Add your photo
+            </span>
+          </div>
+        )}
       </header>
 
-      <div className="border-y border-white/10 bg-black/20">
-        <div className={`mx-auto grid grid-cols-4 divide-x divide-white/10 ${compact ? "max-w-full" : "max-w-lg"}`}>
+      <div className="border-y border-white/10" style={{ backgroundColor: bg }}>
+        <div
+          className={`mx-auto grid grid-cols-4 divide-x divide-white/10 ${compact ? "max-w-full" : "max-w-lg"}`}
+        >
           {[
             { label: "GPA", value: gpa != null ? gpa.toFixed(1) : "—" },
             { label: "Height", value: formatHeight(heightInches) },
             { label: "Position", value: position ?? "—" },
             { label: "Class", value: gradYear?.toString() ?? "—" },
           ].map((stat) => (
-            <div key={stat.label} className="px-2 py-4 text-center">
-              <p className="font-display text-xl" style={{ color: accent }}>
+            <div key={stat.label} className={`text-center ${compact ? "px-1 py-3" : "px-2 py-4"}`}>
+              <p
+                className={`font-display ${compact ? "text-lg" : "text-2xl sm:text-3xl"}`}
+                style={{ color: accent }}
+              >
                 {stat.value}
               </p>
-              <p className="stat-label mt-1">{stat.label}</p>
+              <p className={`stat-label mt-1 ${compact ? "text-[9px]" : ""}`}>{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       <main className={`mx-auto space-y-6 px-4 py-8 ${compact ? "max-w-full" : "max-w-lg"}`}>
+        <SocialConnect links={socialLinks} accent={accent} compact={compact} />
+
         {bio && (
           <section>
             <SectionTitle accent={accent}>About</SectionTitle>
