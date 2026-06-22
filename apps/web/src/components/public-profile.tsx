@@ -108,11 +108,17 @@ export function PublicProfileView(props: Props) {
 
   return (
     <div
-      className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : "min-h-screen"}`}
-      style={{
-        background: `linear-gradient(180deg, ${bg} 0%, #050508 60%)`,
-      }}
+      className={`text-white ${compact ? "" : "min-h-screen"}`}
+      style={{ background: "#050508" }}
     >
+      {/* Centered portrait card — max 480px, matches editor crop aspect */}
+      <div className={compact ? "" : "mx-auto max-w-[480px]"}>
+      <div
+        className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : ""}`}
+        style={{
+          background: `linear-gradient(180deg, ${bg} 0%, #050508 60%)`,
+        }}
+      >
       <header className={`relative overflow-hidden ${heroLayout}`}>
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -310,6 +316,8 @@ export function PublicProfileView(props: Props) {
           </footer>
         )}
       </main>
+    </div>
+    </div>
     </div>
   );
 }

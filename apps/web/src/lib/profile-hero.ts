@@ -1,9 +1,9 @@
 /** Shared hero frame — keep editor picker and public profile in sync */
 export const HERO_FRAME_CLASS = {
-  /** Editor live preview — scales with column width, no max-height cap */
-  compact: "aspect-[9/16] min-h-[22rem] w-full",
-  /** Public Digital ID — tall phone-style hero */
-  full: "aspect-[9/16] min-h-[34rem] w-full max-h-[min(94vh,56rem)] sm:min-h-[38rem]",
+  /** Editor live preview — portrait 4:5 crop window (matches public profile) */
+  compact: "aspect-[4/5] w-full",
+  /** Public Digital ID — same portrait 4:5 so what you crop is what coaches see */
+  full: "aspect-[4/5] w-full",
 } as const;
 
 export type PhotoPosition = {
