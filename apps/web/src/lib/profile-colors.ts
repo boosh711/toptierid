@@ -233,12 +233,6 @@ const SCHOOL_PALETTES: Record<string, ProfileColors & { displayName: string }> =
     primaryColor: "#FEE123",
     secondaryColor: "#154733",
   },
-  "penn state": {
-    displayName: "Penn State",
-    accentColor: "#FFFFFF",
-    primaryColor: "#FFFFFF",
-    secondaryColor: "#041E42",
-  },
   nebraska: {
     displayName: "Nebraska",
     accentColor: "#E41C38",
