@@ -110,7 +110,7 @@ export function PublicProfileView(props: Props) {
     <div
       className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : "min-h-screen"}`}
       style={{
-        background: `linear-gradient(180deg, ${bg} 0%, 40%, #050508 100%)`,
+        background: `linear-gradient(180deg, ${bg} 0%, #050508 60%)`,
       }}
     >
       <header className={`relative overflow-hidden ${heroLayout}`}>
@@ -119,11 +119,11 @@ export function PublicProfileView(props: Props) {
           <img
             src={photoUrl}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full select-none"
             style={{
-              objectPosition: photoObjectPosition(photoPosition),
-              transform: `scale(${scale})`,
-              transformOrigin: `${photoPosition.x}% ${photoPosition.y}%`,
+              objectFit: "cover",
+              transform: `translate(${((50 - photoPosition.x) * scale).toFixed(2)}%, ${((50 - photoPosition.y) * scale).toFixed(2)}%) scale(${scale})`,
+              transformOrigin: "center center",
             }}
           />
         ) : (
@@ -135,21 +135,20 @@ export function PublicProfileView(props: Props) {
           />
         )}
 
-        {/* Smooth single-layer gradient — no harsh banding */}
+        {/* Clean bottom fade — just darkness, no color tinting */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background: `linear-gradient(
               to bottom,
               rgba(0,0,0,0) 0%,
-              rgba(0,0,0,0) 30%,
-              rgba(0,0,0,0.5) 60%,
-              rgba(0,0,0,0.85) 85%,
-              ${bg} 100%
+              rgba(0,0,0,0) 40%,
+              rgba(0,0,0,0.6) 70%,
+              rgba(0,0,0,0.92) 90%,
+              rgba(0,0,0,1) 100%
             )`,
           }}
         />
-        {/* Removed second gradient layer — single gradient above handles the fade cleanly */}
 
         {!compact && (
           <p className="absolute left-4 top-4 z-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
