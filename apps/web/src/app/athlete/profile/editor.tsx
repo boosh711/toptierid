@@ -71,9 +71,10 @@ export function ProfileEditor({
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState("");
   const [photoSaved, setPhotoSaved] = useState(false);
-  const [photoPosition, setPhotoPosition] = useState<PhotoPosition>(() =>
-    parsePhotoPosition(profile.photoPositionX, profile.photoPositionY)
-  );
+  const [photoPosition, setPhotoPosition] = useState<PhotoPosition>(() => ({
+    ...parsePhotoPosition(profile.photoPositionX, profile.photoPositionY),
+    scale: (profile as { photoScale?: number }).photoScale ?? 1.0,
+  }));
   const [positionSaved, setPositionSaved] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagramUrl: profile.instagramUrl,
@@ -361,6 +362,7 @@ export function ProfileEditor({
                   await updatePhotoPosition({
                     photoPositionX: photoPosition.x,
                     photoPositionY: photoPosition.y,
+                    photoScale: photoPosition.scale ?? 1.0,
                   });
                   setPositionSaved(true);
                   setTimeout(() => setPositionSaved(false), 2000);
@@ -453,6 +455,7 @@ export function ProfileEditor({
               onSelect={(c) =>
                 persistColors({ ...colors, accentColor: c, primaryColor: c })
               }
+              showCustom
             />
           </div>
 
@@ -588,6 +591,7 @@ export function ProfileEditor({
             photoUrl={photoPreview || photoUrl}
             photoPositionX={photoPosition.x}
             photoPositionY={photoPosition.y}
+            photoScale={photoPosition.scale ?? 1}
             primaryColor={colors.primaryColor}
             secondaryColor={colors.secondaryColor}
             accentColor={colors.accentColor}

@@ -54,6 +54,7 @@ model AthleteProfile {
   photoUrl         String?
   photoPositionX   Float    @default(50)
   photoPositionY   Float    @default(22)
+  photoScale       Float    @default(1.0)
   instagramUrl   String?
   tiktokUrl      String?
   youtubeUrl     String?

@@ -50,6 +50,7 @@ const optionalSocialField = z
 export const photoPositionSchema = z.object({
   photoPositionX: z.coerce.number().min(0).max(100),
   photoPositionY: z.coerce.number().min(0).max(100),
+  photoScale: z.coerce.number().min(1).max(3).optional().default(1.0),
 });
 
 export const socialLinksSchema = z.object({

@@ -9,14 +9,16 @@ export const HERO_FRAME_CLASS = {
 export type PhotoPosition = {
   x: number;
   y: number;
+  scale?: number;
 };
 
 export const DEFAULT_PHOTO_POSITION: PhotoPosition = { x: 50, y: 22 };
 
-export function clampPhotoPosition(x: number, y: number): PhotoPosition {
+export function clampPhotoPosition(x: number, y: number, scale?: number): PhotoPosition {
   return {
     x: Math.min(100, Math.max(0, Math.round(x))),
     y: Math.min(100, Math.max(0, Math.round(y))),
+    scale: scale !== undefined ? Math.min(3, Math.max(1, scale)) : undefined,
   };
 }
 

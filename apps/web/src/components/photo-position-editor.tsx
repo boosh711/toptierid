@@ -31,9 +31,9 @@ export function PhotoPositionEditor({
       const rect = el.getBoundingClientRect();
       const x = ((clientX - rect.left) / rect.width) * 100;
       const y = ((clientY - rect.top) / rect.height) * 100;
-      onChange(clampPhotoPosition(x, y));
+      onChange({ ...position, ...clampPhotoPosition(x, y) });
     },
-    [onChange]
+    [onChange, position]
   );
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -53,10 +53,12 @@ export function PhotoPositionEditor({
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
+  const scale = position.scale ?? 1;
+
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted">
-        Drag on the preview or use the sliders to choose what shows in your hero photo.
+        Drag the preview to reposition your photo. Use sliders to fine-tune position and zoom.
       </p>
       <div
         ref={frameRef}
@@ -73,7 +75,11 @@ export function PhotoPositionEditor({
           src={imageUrl}
           alt=""
           className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: photoObjectPosition(position) }}
+          style={{
+            objectPosition: photoObjectPosition(position),
+            transform: `scale(${scale})`,
+            transformOrigin: `${position.x}% ${position.y}%`,
+          }}
           draggable={false}
         />
         <div
@@ -102,7 +108,9 @@ export function PhotoPositionEditor({
             min={0}
             max={100}
             value={position.x}
-            onChange={(e) => onChange(clampPhotoPosition(Number(e.target.value), position.y))}
+            onChange={(e) =>
+              onChange({ ...position, ...clampPhotoPosition(Number(e.target.value), position.y) })
+            }
             className="w-full accent-brand"
           />
         </div>
@@ -116,10 +124,30 @@ export function PhotoPositionEditor({
             min={0}
             max={100}
             value={position.y}
-            onChange={(e) => onChange(clampPhotoPosition(position.x, Number(e.target.value)))}
+            onChange={(e) =>
+              onChange({ ...position, ...clampPhotoPosition(position.x, Number(e.target.value)) })
+            }
             className="w-full accent-brand"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="label flex justify-between">
+          <span>Zoom</span>
+          <span className="text-muted">{scale.toFixed(2)}×</span>
+        </label>
+        <input
+          type="range"
+          min={1}
+          max={3}
+          step={0.05}
+          value={scale}
+          onChange={(e) =>
+            onChange({ ...position, scale: Number(e.target.value) })
+          }
+          className="w-full accent-brand"
+        />
       </div>
 
       <button
@@ -128,7 +156,7 @@ export function PhotoPositionEditor({
         disabled={saving}
         className="btn-secondary w-full"
       >
-        {saving ? "Saving…" : "Save photo position"}
+        {saving ? "Saving…" : "Save photo position & zoom"}
       </button>
     </div>
   );

@@ -156,6 +156,7 @@ export async function updatePhotoPosition(data: unknown) {
     data: {
       photoPositionX: parsed.photoPositionX,
       photoPositionY: parsed.photoPositionY,
+      photoScale: parsed.photoScale,
     },
   });
 

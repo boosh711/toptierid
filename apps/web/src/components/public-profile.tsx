@@ -38,6 +38,7 @@ type Props = {
   photoUrl?: string | null;
   photoPositionX?: number | null;
   photoPositionY?: number | null;
+  photoScale?: number | null;
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string | null;
@@ -80,6 +81,7 @@ export function PublicProfileView(props: Props) {
     photoUrl,
     photoPositionX,
     photoPositionY,
+    photoScale,
     primaryColor = "#1E6BD6",
     secondaryColor = "#0B1F3A",
     accentColor,
@@ -101,13 +103,14 @@ export function PublicProfileView(props: Props) {
     .join(" • ");
 
   const photoPosition = parsePhotoPosition(photoPositionX, photoPositionY);
+  const scale = photoScale ?? 1;
   const heroLayout = compact ? HERO_FRAME_CLASS.compact : HERO_FRAME_CLASS.full;
 
   return (
     <div
       className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : "min-h-screen"}`}
       style={{
-        background: `linear-gradient(180deg, ${bg} 0%, #050508 100%)`,
+        background: `linear-gradient(180deg, ${bg} 0%, 40%, #050508 100%)`,
       }}
     >
       <header className={`relative overflow-hidden ${heroLayout}`}>
@@ -117,7 +120,11 @@ export function PublicProfileView(props: Props) {
             src={photoUrl}
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: photoObjectPosition(photoPosition) }}
+            style={{
+              objectPosition: photoObjectPosition(photoPosition),
+              transform: `scale(${scale})`,
+              transformOrigin: `${photoPosition.x}% ${photoPosition.y}%`,
+            }}
           />
         ) : (
           <div
@@ -128,20 +135,21 @@ export function PublicProfileView(props: Props) {
           />
         )}
 
-        {/* Bottom fade so name and stats stay readable */}
+        {/* Smooth single-layer gradient — no harsh banding */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background: `linear-gradient(
               to bottom,
-              transparent 0%,
-              transparent 45%,
-              ${bg}88 78%,
-              #050508 100%
+              rgba(0,0,0,0) 0%,
+              rgba(0,0,0,0) 30%,
+              rgba(0,0,0,0.5) 60%,
+              rgba(0,0,0,0.85) 85%,
+              ${bg} 100%
             )`,
           }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+        {/* Removed second gradient layer — single gradient above handles the fade cleanly */}
 
         {!compact && (
           <p className="absolute left-4 top-4 z-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
