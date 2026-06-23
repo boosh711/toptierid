@@ -13,6 +13,7 @@ import { PhotoPositionEditor } from "@/components/photo-position-editor";
 import { PublicProfileView } from "@/components/public-profile";
 import { DivisionPills } from "@/components/color-swatch-picker";
 import { ColorWheelPicker } from "@/components/color-wheel-picker";
+import { ClubDropdown } from "@/components/club-dropdown";
 import {
   ACCENT_PRESETS,
   BACKGROUND_PRESETS,
@@ -90,6 +91,7 @@ export function ProfileEditor({
     scale: (profile as { photoScale?: number }).photoScale ?? 1.0,
   }));
   const [positionSaved, setPositionSaved] = useState(false);
+  const [clubValue, setClubValue] = useState(profile.club ?? "");
   const [clubCrestUrl, setClubCrestUrl] = useState<string | null>(profile.clubCrestUrl ?? null);
   const [crestError, setCrestError] = useState("");
   const [crestSaved, setCrestSaved] = useState(false);
@@ -255,7 +257,11 @@ export function ProfileEditor({
           </div>
           <div>
             <label className="label">Club team</label>
-            <input name="club" defaultValue={profile.club ?? ""} className="input" />
+            <input type="hidden" name="club" value={clubValue} readOnly />
+            <ClubDropdown
+              value={clubValue}
+              onChange={(name) => setClubValue(name)}
+            />
           </div>
           <div>
             <label className="label">High school</label>
