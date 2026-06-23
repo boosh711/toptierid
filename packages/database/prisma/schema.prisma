@@ -58,6 +58,7 @@ model AthleteProfile {
   goalsScored    Int?
   assists        Int?
   league         String?
+  clubCrestUrl   String?
   instagramUrl   String?
   tiktokUrl      String?
   youtubeUrl     String?

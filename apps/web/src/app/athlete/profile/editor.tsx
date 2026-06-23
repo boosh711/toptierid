@@ -43,6 +43,7 @@ type Profile = {
   goalsScored: number | null;
   assists: number | null;
   league: string | null;
+  clubCrestUrl: string | null;
   club: string | null;
   highSchool: string | null;
   city: string | null;
@@ -89,6 +90,9 @@ export function ProfileEditor({
     scale: (profile as { photoScale?: number }).photoScale ?? 1.0,
   }));
   const [positionSaved, setPositionSaved] = useState(false);
+  const [clubCrestUrl, setClubCrestUrl] = useState<string | null>(profile.clubCrestUrl ?? null);
+  const [crestError, setCrestError] = useState("");
+  const [crestSaved, setCrestSaved] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagramUrl: profile.instagramUrl,
     tiktokUrl: profile.tiktokUrl,
@@ -406,6 +410,75 @@ export function ProfileEditor({
           )}
         </form>
 
+        {/* Club crest upload */}
+        <form
+          className="card space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setCrestError("");
+            const form = e.currentTarget;
+            const fileInput = form.elements.namedItem("crest") as HTMLInputElement | null;
+            const file = fileInput?.files?.[0];
+            if (!file) {
+              setCrestError("Choose an image to upload.");
+              return;
+            }
+            start(async () => {
+              try {
+                const fd = new FormData();
+                fd.set("file", file);
+                const response = await fetch("/api/athlete/club-crest", {
+                  method: "POST",
+                  body: fd,
+                });
+                const res = await response.json();
+                if (!response.ok || res.error) {
+                  setCrestError(res.error || "Upload failed. Try again.");
+                  return;
+                }
+                if (res.url) setClubCrestUrl(res.url);
+                form.reset();
+                setCrestSaved(true);
+                setTimeout(() => setCrestSaved(false), 2000);
+              } catch {
+                setCrestError("Upload failed. Try again.");
+              }
+            });
+          }}
+        >
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            🛡️ Club crest
+          </h2>
+          <p className="text-xs text-muted">
+            Upload your club&apos;s logo or crest. Use a PNG with a transparent background for best results. Shown as a badge on your profile.
+          </p>
+          <div className="flex items-center gap-4">
+            {clubCrestUrl ? (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-brand/40 bg-surface-elevated p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={clubCrestUrl} alt="Club crest" className="h-full w-full object-contain" />
+              </div>
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border bg-surface-elevated text-2xl text-muted">
+                🛡️
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <input
+                name="crest"
+                type="file"
+                accept="image/*"
+                className="input"
+              />
+            </div>
+          </div>
+          {crestError && <p className="text-xs text-red-400">{crestError}</p>}
+          {crestSaved && <p className="text-xs text-success">Club crest saved.</p>}
+          <button type="submit" disabled={pending} className="btn-primary w-full">
+            {pending ? "Saving…" : "Save crest"}
+          </button>
+        </form>
+
         {/* Connect — Social links */}
         <form
           className="card space-y-4"
@@ -607,6 +680,7 @@ export function ProfileEditor({
             heightInches={profile.heightInches}
             goalsScored={profile.goalsScored}
             assists={profile.assists}
+            clubCrestUrl={clubCrestUrl}
             club={profile.club}
             highSchool={profile.highSchool}
             city={profile.city}

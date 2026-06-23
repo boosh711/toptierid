@@ -43,6 +43,7 @@ export default async function PublicProfilePage({
       heightInches={profile.heightInches}
       goalsScored={profile.goalsScored}
       assists={profile.assists}
+      clubCrestUrl={profile.clubCrestUrl}
       highSchool={profile.highSchool}
       city={profile.city}
       state={profile.state}

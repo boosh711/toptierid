@@ -32,6 +32,7 @@ type Props = {
   heightInches?: number | null;
   goalsScored?: number | null;
   assists?: number | null;
+  clubCrestUrl?: string | null;
   club?: string | null;
   highSchool?: string | null;
   city?: string | null;
@@ -79,6 +80,7 @@ export function PublicProfileView(props: Props) {
     heightInches,
     goalsScored,
     assists,
+    clubCrestUrl,
     club,
     highSchool,
     bio,
@@ -164,6 +166,22 @@ export function PublicProfileView(props: Props) {
           <p className="absolute left-4 top-4 z-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
             Digital ID
           </p>
+        )}
+
+        {/* Club crest badge */}
+        {clubCrestUrl && (
+          <div
+            className={`absolute z-10 overflow-hidden rounded-full border-2 border-white/30 bg-black/30 backdrop-blur-sm ${
+              compact ? "right-3 top-3 h-9 w-9" : "left-4 top-10 h-12 w-12 sm:h-14 sm:w-14"
+            }`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={clubCrestUrl}
+              alt="Club crest"
+              className="h-full w-full object-contain p-1"
+            />
+          </div>
         )}
 
         <span
