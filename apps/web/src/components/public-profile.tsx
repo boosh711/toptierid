@@ -115,14 +115,19 @@ export function PublicProfileView(props: Props) {
   return (
     <div
       className={`text-white ${compact ? "" : "min-h-screen"}`}
-      style={{ background: bg }}
+      style={{ background: compact ? "transparent" : "#0a0a0f" }}
     >
       {/* Centered portrait card — max 480px, matches editor crop aspect */}
-      <div className={compact ? "" : "mx-auto max-w-[480px]"}>
+      <div className={compact ? "" : "mx-auto max-w-[480px] py-8"}>
       <div
-        className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : ""}`}
+        className={`text-white overflow-hidden ${
+          compact
+            ? "rounded-xl border border-border"
+            : "rounded-2xl border border-white/10 shadow-2xl shadow-black/80"
+        }`}
         style={{
-          background: `linear-gradient(180deg, ${bg} 0%, ${bg}cc 60%, ${bg} 100%)`,
+          background: `linear-gradient(180deg, ${bg} 0%, ${bg}dd 70%, #0d0d14 100%)`,
+          boxShadow: compact ? undefined : `0 0 0 1px ${bg}66, 0 32px 80px -12px ${bg}88`,
         }}
       >
       <header className={`relative overflow-hidden ${heroLayout}`}>
