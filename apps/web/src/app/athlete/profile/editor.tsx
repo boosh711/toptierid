@@ -194,13 +194,20 @@ export function ProfileEditor({
             e.preventDefault();
             const fd = new FormData(e.currentTarget);
             start(async () => {
+              const feet = fd.get("heightFeet");
+              const rem = fd.get("heightInchesRem");
+              const heightInches =
+                feet ? Number(feet) * 12 + (rem ? Number(rem) : 0) : undefined;
               await updateAthleteBasics({
                 firstName: user.firstName,
                 lastName: user.lastName,
                 position: fd.get("position"),
                 gradYear: fd.get("gradYear"),
                 gpa: fd.get("gpa") || undefined,
-                heightInches: fd.get("heightInches") || undefined,
+                heightInches: heightInches || undefined,
+                goalsScored: fd.get("goalsScored") || undefined,
+                assists: fd.get("assists") || undefined,
+                league: fd.get("league") || undefined,
                 club: fd.get("club"),
                 highSchool: fd.get("highSchool"),
                 state: fd.get("state"),
@@ -234,8 +241,33 @@ export function ProfileEditor({
               <input name="gpa" type="number" step="0.01" defaultValue={profile.gpa ?? ""} className="input" />
             </div>
             <div>
-              <label className="label">Height (inches)</label>
-              <input name="heightInches" type="number" defaultValue={profile.heightInches ?? ""} className="input" placeholder="68" />
+              <label className="label">Height</label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <select
+                    name="heightFeet"
+                    defaultValue={profile.heightInches ? Math.floor(profile.heightInches / 12).toString() : ""}
+                    className="input w-full"
+                  >
+                    <option value="">ft</option>
+                    {[4, 5, 6, 7].map((f) => (
+                      <option key={f} value={f}>{f} ft</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <select
+                    name="heightInchesRem"
+                    defaultValue={profile.heightInches ? (profile.heightInches % 12).toString() : ""}
+                    className="input w-full"
+                  >
+                    <option value="">in</option>
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
+                      <option key={i} value={i}>{i} in</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
             <div>
               <label className="label">Goals (season)</label>
