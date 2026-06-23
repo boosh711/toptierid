@@ -11,7 +11,8 @@ import {
 } from "@/app/actions";
 import { PhotoPositionEditor } from "@/components/photo-position-editor";
 import { PublicProfileView } from "@/components/public-profile";
-import { ColorSwatchPicker, DivisionPills } from "@/components/color-swatch-picker";
+import { DivisionPills } from "@/components/color-swatch-picker";
+import { ColorWheelPicker } from "@/components/color-wheel-picker";
 import {
   ACCENT_PRESETS,
   BACKGROUND_PRESETS,
@@ -23,6 +24,15 @@ import { parsePhotoPosition, type PhotoPosition } from "@/lib/profile-hero";
 import { SOCIAL_FIELDS, type SocialLinks } from "@/lib/social-links";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
+const LEAGUE_OPTIONS = [
+  "ECNL",
+  "ECRL",
+  "GA (Girls Academy)",
+  "GA Aspire",
+  "DPL",
+  "National 1 League (N1)",
+] as const;
+
 type Profile = {
   id: string;
   slug: string;
@@ -30,6 +40,9 @@ type Profile = {
   gradYear: number | null;
   gpa: number | null;
   heightInches: number | null;
+  goalsScored: number | null;
+  assists: number | null;
+  league: string | null;
   club: string | null;
   highSchool: string | null;
   city: string | null;
@@ -218,6 +231,23 @@ export function ProfileEditor({
               <label className="label">Height (inches)</label>
               <input name="heightInches" type="number" defaultValue={profile.heightInches ?? ""} className="input" placeholder="68" />
             </div>
+            <div>
+              <label className="label">Goals (season)</label>
+              <input name="goalsScored" type="number" min="0" defaultValue={profile.goalsScored ?? ""} className="input" placeholder="0" />
+            </div>
+            <div>
+              <label className="label">Assists (season)</label>
+              <input name="assists" type="number" min="0" defaultValue={profile.assists ?? ""} className="input" placeholder="0" />
+            </div>
+          </div>
+          <div>
+            <label className="label">League / Level</label>
+            <select name="league" defaultValue={profile.league ?? ""} className="input">
+              <option value="">Select league…</option>
+              {LEAGUE_OPTIONS.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="label">Club team</label>
@@ -447,26 +477,18 @@ export function ProfileEditor({
             )}
           </div>
 
-          <div>
-            <label className="label">Or pick an accent color</label>
-            <ColorSwatchPicker
-              swatches={ACCENT_PRESETS}
-              selected={colors.accentColor}
-              onSelect={(c) =>
-                persistColors({ ...colors, accentColor: c, primaryColor: c })
-              }
-              showCustom
-            />
-          </div>
-
-          <div>
-            <label className="label">Background style</label>
-            <ColorSwatchPicker
-              swatches={BACKGROUND_PRESETS}
-              selected={colors.secondaryColor}
-              onSelect={(c) => persistColors({ ...colors, secondaryColor: c })}
-            />
-          </div>
+          <ColorWheelPicker
+            accentColor={colors.accentColor}
+            backgroundColor={colors.secondaryColor}
+            onAccentChange={(c) =>
+              persistColors({ ...colors, accentColor: c, primaryColor: c })
+            }
+            onBackgroundChange={(c) =>
+              persistColors({ ...colors, secondaryColor: c })
+            }
+            accentSwatches={ACCENT_PRESETS}
+            backgroundSwatches={BACKGROUND_PRESETS}
+          />
 
           {savedMsg && <p className="text-xs text-success">{savedMsg}</p>}
         </div>
@@ -583,6 +605,8 @@ export function ProfileEditor({
             gradYear={profile.gradYear}
             gpa={profile.gpa}
             heightInches={profile.heightInches}
+            goalsScored={profile.goalsScored}
+            assists={profile.assists}
             club={profile.club}
             highSchool={profile.highSchool}
             city={profile.city}

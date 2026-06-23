@@ -39,7 +39,10 @@ export default async function PublicProfilePage({
       slug={profile.slug}
       position={profile.position}
       gradYear={profile.gradYear}
+      gpa={profile.gpa}
       heightInches={profile.heightInches}
+      goalsScored={profile.goalsScored}
+      assists={profile.assists}
       highSchool={profile.highSchool}
       city={profile.city}
       state={profile.state}

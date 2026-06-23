@@ -55,6 +55,9 @@ model AthleteProfile {
   photoPositionX   Float    @default(50)
   photoPositionY   Float    @default(22)
   photoScale       Float    @default(1.0)
+  goalsScored    Int?
+  assists        Int?
+  league         String?
   instagramUrl   String?
   tiktokUrl      String?
   youtubeUrl     String?

@@ -30,6 +30,8 @@ type Props = {
   gradYear?: number | null;
   gpa?: number | null;
   heightInches?: number | null;
+  goalsScored?: number | null;
+  assists?: number | null;
   club?: string | null;
   highSchool?: string | null;
   city?: string | null;
@@ -75,6 +77,8 @@ export function PublicProfileView(props: Props) {
     gradYear,
     gpa,
     heightInches,
+    goalsScored,
+    assists,
     club,
     highSchool,
     bio,
@@ -109,14 +113,14 @@ export function PublicProfileView(props: Props) {
   return (
     <div
       className={`text-white ${compact ? "" : "min-h-screen"}`}
-      style={{ background: "#050508" }}
+      style={{ background: bg }}
     >
       {/* Centered portrait card — max 480px, matches editor crop aspect */}
       <div className={compact ? "" : "mx-auto max-w-[480px]"}>
       <div
         className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : ""}`}
         style={{
-          background: `linear-gradient(180deg, ${bg} 0%, #050508 60%)`,
+          background: `linear-gradient(180deg, ${bg} 0%, ${bg}cc 60%, ${bg} 100%)`,
         }}
       >
       <header className={`relative overflow-hidden ${heroLayout}`}>
@@ -210,15 +214,15 @@ export function PublicProfileView(props: Props) {
         )}
       </header>
 
-      <div className="border-y border-white/10" style={{ backgroundColor: bg }}>
+      <div className="border-y border-white/10" style={{ backgroundColor: `${bg}ee` }}>
         <div
           className={`mx-auto grid grid-cols-4 divide-x divide-white/10 ${compact ? "max-w-full" : "max-w-lg"}`}
         >
           {[
+            { label: "Goals", value: goalsScored != null ? goalsScored.toString() : "—" },
+            { label: "Assists", value: assists != null ? assists.toString() : "—" },
             { label: "GPA", value: gpa != null ? gpa.toFixed(1) : "—" },
             { label: "Height", value: formatHeight(heightInches) },
-            { label: "Position", value: position ?? "—" },
-            { label: "Class", value: gradYear?.toString() ?? "—" },
           ].map((stat) => (
             <div key={stat.label} className={`text-center ${compact ? "px-1 py-3" : "px-2 py-4"}`}>
               <p
