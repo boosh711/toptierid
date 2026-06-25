@@ -30,6 +30,13 @@ export default async function SignupPage({
               <option value="COACH">College Coach</option>
             </select>
           </div>
+          <div>
+            <label className="label" htmlFor="coachType">Coach type</label>
+            <select id="coachType" name="coachType" defaultValue="single" className="input">
+              <option value="single">Single Team (college coach)</option>
+              <option value="club">Club Coach (manages multiple teams)</option>
+            </select>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label" htmlFor="firstName">First name</label>

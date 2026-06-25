@@ -26,6 +26,7 @@ model User {
   role         UserRole
   firstName    String
   lastName     String
+  isAdmin      Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -42,6 +43,7 @@ model AthleteProfile {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   slug           String   @unique
   sport          String   @default("soccer")
+  isVisible      Boolean  @default(true)
   position       String?
   gradYear       Int?
   gpa            Float?
@@ -127,6 +129,7 @@ model CoachProfile {
   title      String?
   isVerified Boolean  @default(true)
   programId  String?
+  coachType  String   @default("single")
 
   program     Program?            @relation(fields: [programId], references: [id])
   memberships ProgramMembership[]
