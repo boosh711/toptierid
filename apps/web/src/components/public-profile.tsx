@@ -30,6 +30,9 @@ type Props = {
   gradYear?: number | null;
   gpa?: number | null;
   heightInches?: number | null;
+  goalsScored?: number | null;
+  assists?: number | null;
+  clubCrestUrl?: string | null;
   club?: string | null;
   highSchool?: string | null;
   city?: string | null;
@@ -38,6 +41,7 @@ type Props = {
   photoUrl?: string | null;
   photoPositionX?: number | null;
   photoPositionY?: number | null;
+  photoScale?: number | null;
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string | null;
@@ -74,12 +78,16 @@ export function PublicProfileView(props: Props) {
     gradYear,
     gpa,
     heightInches,
+    goalsScored,
+    assists,
+    clubCrestUrl,
     club,
     highSchool,
     bio,
     photoUrl,
     photoPositionX,
     photoPositionY,
+    photoScale,
     primaryColor = "#1E6BD6",
     secondaryColor = "#0B1F3A",
     accentColor,
@@ -101,23 +109,39 @@ export function PublicProfileView(props: Props) {
     .join(" • ");
 
   const photoPosition = parsePhotoPosition(photoPositionX, photoPositionY);
+  const scale = photoScale ?? 1;
   const heroLayout = compact ? HERO_FRAME_CLASS.compact : HERO_FRAME_CLASS.full;
 
   return (
     <div
-      className={`text-white ${compact ? "overflow-hidden rounded-xl border border-border" : "min-h-screen"}`}
-      style={{
-        background: `linear-gradient(180deg, ${bg} 0%, #050508 100%)`,
-      }}
+      className={`text-white ${compact ? "" : "min-h-screen"}`}
+      style={{ background: compact ? "transparent" : "#0a0a0f" }}
     >
+      {/* Centered portrait card — max 480px, matches editor crop aspect */}
+      <div className={compact ? "" : "mx-auto max-w-[480px] py-8"}>
+      <div
+        className={`text-white overflow-hidden ${
+          compact
+            ? "rounded-xl border border-border"
+            : "rounded-2xl border border-white/10 shadow-2xl shadow-black/80"
+        }`}
+        style={{
+          background: `linear-gradient(180deg, ${bg} 0%, ${bg}dd 70%, #0d0d14 100%)`,
+          boxShadow: compact ? undefined : `0 0 0 1px ${bg}66, 0 32px 80px -12px ${bg}88`,
+        }}
+      >
       <header className={`relative overflow-hidden ${heroLayout}`}>
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoUrl}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: photoObjectPosition(photoPosition) }}
+            className="absolute inset-0 h-full w-full select-none"
+            style={{
+              objectFit: "cover",
+              transform: `translate(${((50 - photoPosition.x) * scale).toFixed(2)}%, ${((50 - photoPosition.y) * scale).toFixed(2)}%) scale(${scale})`,
+              transformOrigin: "center center",
+            }}
           />
         ) : (
           <div
@@ -128,25 +152,41 @@ export function PublicProfileView(props: Props) {
           />
         )}
 
-        {/* Bottom fade so name and stats stay readable */}
+        {/* Clean bottom fade — just darkness, no color tinting */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background: `linear-gradient(
               to bottom,
-              transparent 0%,
-              transparent 45%,
-              ${bg}88 78%,
-              #050508 100%
+              rgba(0,0,0,0) 0%,
+              rgba(0,0,0,0) 40%,
+              rgba(0,0,0,0.6) 70%,
+              rgba(0,0,0,0.92) 90%,
+              rgba(0,0,0,1) 100%
             )`,
           }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
         {!compact && (
           <p className="absolute left-4 top-4 z-10 text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
             Digital ID
           </p>
+        )}
+
+        {/* Club crest badge */}
+        {clubCrestUrl && (
+          <div
+            className={`absolute z-10 overflow-hidden rounded-full border-2 border-white/30 bg-black/30 backdrop-blur-sm ${
+              compact ? "right-3 top-3 h-9 w-9" : "left-4 top-10 h-12 w-12 sm:h-14 sm:w-14"
+            }`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={clubCrestUrl}
+              alt="Club crest"
+              className="h-full w-full object-contain p-1"
+            />
+          </div>
         )}
 
         <span
@@ -197,15 +237,15 @@ export function PublicProfileView(props: Props) {
         )}
       </header>
 
-      <div className="border-y border-white/10" style={{ backgroundColor: bg }}>
+      <div className="border-y border-white/10" style={{ backgroundColor: `${bg}ee` }}>
         <div
           className={`mx-auto grid grid-cols-4 divide-x divide-white/10 ${compact ? "max-w-full" : "max-w-lg"}`}
         >
           {[
+            { label: "Goals", value: goalsScored != null ? goalsScored.toString() : "—" },
+            { label: "Assists", value: assists != null ? assists.toString() : "—" },
             { label: "GPA", value: gpa != null ? gpa.toFixed(1) : "—" },
             { label: "Height", value: formatHeight(heightInches) },
-            { label: "Position", value: position ?? "—" },
-            { label: "Class", value: gradYear?.toString() ?? "—" },
           ].map((stat) => (
             <div key={stat.label} className={`text-center ${compact ? "px-1 py-3" : "px-2 py-4"}`}>
               <p
@@ -303,6 +343,8 @@ export function PublicProfileView(props: Props) {
           </footer>
         )}
       </main>
+    </div>
+    </div>
     </div>
   );
 }

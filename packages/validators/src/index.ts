@@ -20,6 +20,9 @@ export const athleteBasicsSchema = z.object({
   gradYear: z.coerce.number().int().min(2024).max(2032),
   gpa: z.coerce.number().min(0).max(4).optional(),
   heightInches: z.coerce.number().int().min(48).max(84).optional(),
+  goalsScored: z.coerce.number().int().min(0).max(999).optional(),
+  assists: z.coerce.number().int().min(0).max(999).optional(),
+  league: z.string().optional(),
   club: z.string().optional(),
   highSchool: z.string().optional(),
   city: z.string().optional(),
@@ -50,6 +53,7 @@ const optionalSocialField = z
 export const photoPositionSchema = z.object({
   photoPositionX: z.coerce.number().min(0).max(100),
   photoPositionY: z.coerce.number().min(0).max(100),
+  photoScale: z.coerce.number().min(1).max(3).optional().default(1.0),
 });
 
 export const socialLinksSchema = z.object({

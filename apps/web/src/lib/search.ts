@@ -14,6 +14,7 @@ export async function searchAthletes(params: {
   const perPage = 20;
   const where: Prisma.AthleteProfileWhereInput = {
     isPublished: true,
+    isVisible: true,
   };
 
   if (params.position) where.position = params.position;

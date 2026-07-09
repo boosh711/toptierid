@@ -16,6 +16,8 @@ export type SessionUser = {
   lastName: string;
   athleteProfileId?: string;
   coachProfileId?: string;
+  coachType?: string;
+  isAdmin?: boolean;
 };
 
 async function enrichUser(userId: string): Promise<SessionUser | null> {
@@ -23,7 +25,7 @@ async function enrichUser(userId: string): Promise<SessionUser | null> {
     where: { id: userId },
     include: {
       athleteProfile: { select: { id: true } },
-      coachProfile: { select: { id: true } },
+      coachProfile: { select: { id: true, coachType: true } },
     },
   });
   if (!user) return null;
@@ -35,6 +37,8 @@ async function enrichUser(userId: string): Promise<SessionUser | null> {
     lastName: user.lastName,
     athleteProfileId: user.athleteProfile?.id,
     coachProfileId: user.coachProfile?.id,
+    coachType: user.coachProfile?.coachType ?? undefined,
+    isAdmin: user.isAdmin,
   };
 }
 
@@ -93,6 +97,7 @@ export async function registerUser(data: {
   role: UserRole;
   firstName: string;
   lastName: string;
+  coachType?: string;
 }) {
   const existing = await prisma.user.findUnique({
     where: { email: data.email.toLowerCase() },
@@ -110,7 +115,7 @@ export async function registerUser(data: {
       ...(data.role === "COACH"
         ? {
             coachProfile: {
-              create: { college: "", title: "Coach", isVerified: true },
+              create: { college: "", title: "Coach", isVerified: true, coachType: data.coachType ?? "single" },
             },
           }
         : {}),

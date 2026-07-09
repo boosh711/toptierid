@@ -28,6 +28,20 @@ export default async function PublicProfilePage({
   if (!profile) notFound();
 
   const session = await getSession();
+
+  // If profile is hidden, only the athlete themselves can view it
+  if (!profile.isVisible && session?.athleteProfileId !== profile.id) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="card max-w-md w-full text-center p-8">
+          <p className="text-4xl mb-4">🔒</p>
+          <h1 className="text-xl font-semibold mb-2">Profile is currently hidden</h1>
+          <p className="text-muted">This athlete has made their profile private.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (session?.coachProfileId || !session) {
     await recordProfileView(profile.id);
   }
@@ -39,7 +53,11 @@ export default async function PublicProfilePage({
       slug={profile.slug}
       position={profile.position}
       gradYear={profile.gradYear}
+      gpa={profile.gpa}
       heightInches={profile.heightInches}
+      goalsScored={profile.goalsScored}
+      assists={profile.assists}
+      clubCrestUrl={profile.clubCrestUrl}
       highSchool={profile.highSchool}
       city={profile.city}
       state={profile.state}
@@ -47,6 +65,7 @@ export default async function PublicProfilePage({
       photoUrl={getProfilePhotoUrl(profile.id, profile.photoUrl, profile.updatedAt.getTime())}
       photoPositionX={profile.photoPositionX}
       photoPositionY={profile.photoPositionY}
+      photoScale={profile.photoScale}
       primaryColor={profile.primaryColor}
       secondaryColor={profile.secondaryColor}
       accentColor={profile.accentColor}

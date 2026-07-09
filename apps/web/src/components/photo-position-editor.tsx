@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
-import {
-  HERO_FRAME_CLASS,
-  type PhotoPosition,
-  clampPhotoPosition,
-  photoObjectPosition,
-} from "@/lib/profile-hero";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { PhotoPosition } from "@/lib/profile-hero";
 
+/**
+ * LinkedIn-style photo editor.
+ * Shows a fixed crop window — user drags the photo around inside it
+ * and uses scroll wheel (or +/- buttons) to zoom.
+ * No sliders.
+ */
 export function PhotoPositionEditor({
   imageUrl,
   position,
@@ -22,113 +23,184 @@ export function PhotoPositionEditor({
   saving?: boolean;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const [dragging, setDragging] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const dragging = useRef(false);
+  const lastPointer = useRef({ x: 0, y: 0 });
 
-  const setFromPointer = useCallback(
-    (clientX: number, clientY: number) => {
-      const el = frameRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const x = ((clientX - rect.left) / rect.width) * 100;
-      const y = ((clientY - rect.top) / rect.height) * 100;
-      onChange(clampPhotoPosition(x, y));
+  // Internal state for smooth dragging — sync to parent on pointer-up
+  const [localPos, setLocalPos] = useState<PhotoPosition>(position);
+
+  // Keep local in sync if parent changes externally (e.g. new photo upload)
+  useEffect(() => {
+    setLocalPos(position);
+  }, [position.x, position.y, position.scale]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const scale = localPos.scale ?? 1;
+
+  /** Clamp translation so image always fully covers the frame */
+  const clamp = useCallback(
+    (x: number, y: number, s: number): PhotoPosition => {
+      const maxOffset = ((s - 1) / 2) * 100;
+      return {
+        x: Math.min(50 + maxOffset, Math.max(50 - maxOffset, x)),
+        y: Math.min(50 + maxOffset, Math.max(50 - maxOffset, y)),
+        scale: Math.min(3, Math.max(1, s)),
+      };
     },
-    [onChange]
+    []
   );
 
   const onPointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
+    dragging.current = true;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    setDragging(true);
-    setFromPointer(e.clientX, e.clientY);
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!dragging) return;
-    setFromPointer(e.clientX, e.clientY);
+    if (!dragging.current) return;
+    const frame = frameRef.current;
+    if (!frame) return;
+    const rect = frame.getBoundingClientRect();
+    const dx = ((e.clientX - lastPointer.current.x) / rect.width) * 100;
+    const dy = ((e.clientY - lastPointer.current.y) / rect.height) * 100;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
+
+    setLocalPos((prev) => {
+      const s = prev.scale ?? 1;
+      // Moving pointer right → image should shift right → x increases
+      return clamp(prev.x - dx, prev.y - dy, s);
+    });
   };
 
   const onPointerUp = (e: React.PointerEvent) => {
-    setDragging(false);
+    if (!dragging.current) return;
+    dragging.current = false;
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    setLocalPos((prev) => {
+      onChange(prev);
+      return prev;
+    });
   };
+
+  /** Scroll wheel to zoom */
+  const onWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.08 : 0.08;
+      setLocalPos((prev) => {
+        const next = clamp(prev.x, prev.y, (prev.scale ?? 1) + delta);
+        return next;
+      });
+    },
+    [clamp]
+  );
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [onWheel]);
+
+  const adjustZoom = (delta: number) => {
+    setLocalPos((prev) => {
+      const next = clamp(prev.x, prev.y, (prev.scale ?? 1) + delta);
+      onChange(next);
+      return next;
+    });
+  };
+
+  // Convert x/y (0-100 position where 50=center) to CSS translate
+  // At scale S, the image is S× the container. We offset from center.
+  const translateX = ((50 - localPos.x) * scale).toFixed(2);
+  const translateY = ((50 - localPos.y) * scale).toFixed(2);
 
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted">
-        Drag on the preview or use the sliders to choose what shows in your hero photo.
+        Drag to reposition · scroll to zoom · photo always fills the frame
       </p>
-      <div
+
+      {/* Crop window */}
+      <div className="relative overflow-hidden rounded-xl border-2 border-brand/60 shadow-brand"
+        style={{ aspectRatio: "4/5", maxHeight: "420px", cursor: dragging.current ? "grabbing" : "grab" }}
         ref={frameRef}
-        className={`relative cursor-crosshair overflow-hidden rounded-xl border border-border bg-black ${HERO_FRAME_CLASS.compact}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
-        role="img"
-        aria-label="Adjust photo position"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imgRef}
           src={imageUrl}
           alt=""
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: photoObjectPosition(position) }}
+          className="pointer-events-none absolute inset-0 h-full w-full select-none"
+          style={{
+            objectFit: "cover",
+            transform: `translate(${translateX}%, ${translateY}%) scale(${scale})`,
+            transformOrigin: "center center",
+          }}
           draggable={false}
         />
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute z-10 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-lg"
-          style={{
-            left: `${position.x}%`,
-            top: `${position.y}%`,
-            boxShadow: "0 0 0 2px rgba(0,0,0,0.4)",
-          }}
-          aria-hidden
-        />
+
+        {/* Corner guides — subtle crop indicators */}
+        {["top-0 left-0", "top-0 right-0", "bottom-0 left-0", "bottom-0 right-0"].map((pos) => (
+          <div
+            key={pos}
+            className={`pointer-events-none absolute ${pos} h-6 w-6`}
+            style={{
+              borderColor: "rgba(255,255,255,0.6)",
+              borderWidth: pos.includes("right") ? "0 2px 0 0" : "0 0 0 2px",
+              borderTopWidth: pos.includes("top") ? "2px" : "0",
+              borderBottomWidth: pos.includes("bottom") ? "2px" : "0",
+            }}
+          />
+        ))}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="label flex justify-between">
-            <span>Horizontal</span>
-            <span className="text-muted">{position.x}%</span>
-          </label>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={position.x}
-            onChange={(e) => onChange(clampPhotoPosition(Number(e.target.value), position.y))}
-            className="w-full accent-brand"
-          />
+      {/* Zoom controls */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => adjustZoom(-0.15)}
+          disabled={scale <= 1}
+          className="btn-secondary h-9 w-9 rounded-full text-lg leading-none disabled:opacity-30"
+          aria-label="Zoom out"
+        >
+          −
+        </button>
+        <div className="flex-1">
+          <div className="h-1.5 rounded-full bg-surface-elevated">
+            <div
+              className="h-1.5 rounded-full bg-brand transition-all"
+              style={{ width: `${((scale - 1) / 2) * 100}%` }}
+            />
+          </div>
         </div>
-        <div>
-          <label className="label flex justify-between">
-            <span>Vertical</span>
-            <span className="text-muted">{position.y}%</span>
-          </label>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={position.y}
-            onChange={(e) => onChange(clampPhotoPosition(position.x, Number(e.target.value)))}
-            className="w-full accent-brand"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={() => adjustZoom(0.15)}
+          disabled={scale >= 3}
+          className="btn-secondary h-9 w-9 rounded-full text-lg leading-none disabled:opacity-30"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+        <span className="w-10 text-right text-xs text-muted">{scale.toFixed(1)}×</span>
       </div>
 
       <button
         type="button"
-        onClick={onSave}
+        onClick={() => {
+          onChange(localPos);
+          onSave();
+        }}
         disabled={saving}
-        className="btn-secondary w-full"
+        className="btn-primary w-full"
       >
-        {saving ? "Saving…" : "Save photo position"}
+        {saving ? "Saving…" : "Save crop"}
       </button>
     </div>
   );

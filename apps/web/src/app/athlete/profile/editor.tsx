@@ -11,7 +11,9 @@ import {
 } from "@/app/actions";
 import { PhotoPositionEditor } from "@/components/photo-position-editor";
 import { PublicProfileView } from "@/components/public-profile";
-import { ColorSwatchPicker, DivisionPills } from "@/components/color-swatch-picker";
+import { DivisionPills } from "@/components/color-swatch-picker";
+import { ColorWheelPicker } from "@/components/color-wheel-picker";
+import { ClubDropdown } from "@/components/club-dropdown";
 import {
   ACCENT_PRESETS,
   BACKGROUND_PRESETS,
@@ -23,6 +25,15 @@ import { parsePhotoPosition, type PhotoPosition } from "@/lib/profile-hero";
 import { SOCIAL_FIELDS, type SocialLinks } from "@/lib/social-links";
 import { SOCCER_POSITIONS, GRAD_YEARS, DIVISIONS, US_REGIONS } from "@top-tier-id/types";
 
+const LEAGUE_OPTIONS = [
+  "ECNL",
+  "ECRL",
+  "GA (Girls Academy)",
+  "GA Aspire",
+  "DPL",
+  "National 1 League (N1)",
+] as const;
+
 type Profile = {
   id: string;
   slug: string;
@@ -30,6 +41,10 @@ type Profile = {
   gradYear: number | null;
   gpa: number | null;
   heightInches: number | null;
+  goalsScored: number | null;
+  assists: number | null;
+  league: string | null;
+  clubCrestUrl: string | null;
   club: string | null;
   highSchool: string | null;
   city: string | null;
@@ -71,10 +86,15 @@ export function ProfileEditor({
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState("");
   const [photoSaved, setPhotoSaved] = useState(false);
-  const [photoPosition, setPhotoPosition] = useState<PhotoPosition>(() =>
-    parsePhotoPosition(profile.photoPositionX, profile.photoPositionY)
-  );
+  const [photoPosition, setPhotoPosition] = useState<PhotoPosition>(() => ({
+    ...parsePhotoPosition(profile.photoPositionX, profile.photoPositionY),
+    scale: (profile as { photoScale?: number }).photoScale ?? 1.0,
+  }));
   const [positionSaved, setPositionSaved] = useState(false);
+  const [clubValue, setClubValue] = useState(profile.club ?? "");
+  const [clubCrestUrl, setClubCrestUrl] = useState<string | null>(profile.clubCrestUrl ?? null);
+  const [crestError, setCrestError] = useState("");
+  const [crestSaved, setCrestSaved] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagramUrl: profile.instagramUrl,
     tiktokUrl: profile.tiktokUrl,
@@ -174,13 +194,20 @@ export function ProfileEditor({
             e.preventDefault();
             const fd = new FormData(e.currentTarget);
             start(async () => {
+              const feet = fd.get("heightFeet");
+              const rem = fd.get("heightInchesRem");
+              const heightInches =
+                feet ? Number(feet) * 12 + (rem ? Number(rem) : 0) : undefined;
               await updateAthleteBasics({
                 firstName: user.firstName,
                 lastName: user.lastName,
                 position: fd.get("position"),
                 gradYear: fd.get("gradYear"),
                 gpa: fd.get("gpa") || undefined,
-                heightInches: fd.get("heightInches") || undefined,
+                heightInches: heightInches || undefined,
+                goalsScored: fd.get("goalsScored") || undefined,
+                assists: fd.get("assists") || undefined,
+                league: fd.get("league") || undefined,
                 club: fd.get("club"),
                 highSchool: fd.get("highSchool"),
                 state: fd.get("state"),
@@ -214,13 +241,59 @@ export function ProfileEditor({
               <input name="gpa" type="number" step="0.01" defaultValue={profile.gpa ?? ""} className="input" />
             </div>
             <div>
-              <label className="label">Height (inches)</label>
-              <input name="heightInches" type="number" defaultValue={profile.heightInches ?? ""} className="input" placeholder="68" />
+              <label className="label">Height</label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <select
+                    name="heightFeet"
+                    defaultValue={profile.heightInches ? Math.floor(profile.heightInches / 12).toString() : ""}
+                    className="input w-full"
+                  >
+                    <option value="">ft</option>
+                    {[4, 5, 6, 7].map((f) => (
+                      <option key={f} value={f}>{f} ft</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <select
+                    name="heightInchesRem"
+                    defaultValue={profile.heightInches ? (profile.heightInches % 12).toString() : ""}
+                    className="input w-full"
+                  >
+                    <option value="">in</option>
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
+                      <option key={i} value={i}>{i} in</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="label">Goals (season)</label>
+              <input name="goalsScored" type="number" min="0" defaultValue={profile.goalsScored ?? ""} className="input" placeholder="0" />
+            </div>
+            <div>
+              <label className="label">Assists (season)</label>
+              <input name="assists" type="number" min="0" defaultValue={profile.assists ?? ""} className="input" placeholder="0" />
             </div>
           </div>
           <div>
+            <label className="label">League / Level</label>
+            <select name="league" defaultValue={profile.league ?? ""} className="input">
+              <option value="">Select league…</option>
+              {LEAGUE_OPTIONS.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="label">Club team</label>
-            <input name="club" defaultValue={profile.club ?? ""} className="input" />
+            <input type="hidden" name="club" value={clubValue} readOnly />
+            <ClubDropdown
+              value={clubValue}
+              onChange={(name) => setClubValue(name)}
+            />
           </div>
           <div>
             <label className="label">High school</label>
@@ -361,6 +434,7 @@ export function ProfileEditor({
                   await updatePhotoPosition({
                     photoPositionX: photoPosition.x,
                     photoPositionY: photoPosition.y,
+                    photoScale: photoPosition.scale ?? 1.0,
                   });
                   setPositionSaved(true);
                   setTimeout(() => setPositionSaved(false), 2000);
@@ -372,6 +446,75 @@ export function ProfileEditor({
           {positionSaved && (
             <p className="text-xs text-success">Photo position saved.</p>
           )}
+        </form>
+
+        {/* Club crest upload */}
+        <form
+          className="card space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setCrestError("");
+            const form = e.currentTarget;
+            const fileInput = form.elements.namedItem("crest") as HTMLInputElement | null;
+            const file = fileInput?.files?.[0];
+            if (!file) {
+              setCrestError("Choose an image to upload.");
+              return;
+            }
+            start(async () => {
+              try {
+                const fd = new FormData();
+                fd.set("file", file);
+                const response = await fetch("/api/athlete/club-crest", {
+                  method: "POST",
+                  body: fd,
+                });
+                const res = await response.json();
+                if (!response.ok || res.error) {
+                  setCrestError(res.error || "Upload failed. Try again.");
+                  return;
+                }
+                if (res.url) setClubCrestUrl(res.url);
+                form.reset();
+                setCrestSaved(true);
+                setTimeout(() => setCrestSaved(false), 2000);
+              } catch {
+                setCrestError("Upload failed. Try again.");
+              }
+            });
+          }}
+        >
+          <h2 className="font-display text-sm uppercase tracking-widest text-brand-light">
+            🛡️ Club crest
+          </h2>
+          <p className="text-xs text-muted">
+            Upload your club&apos;s logo or crest. Use a PNG with a transparent background for best results. Shown as a badge on your profile.
+          </p>
+          <div className="flex items-center gap-4">
+            {clubCrestUrl ? (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-brand/40 bg-surface-elevated p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={clubCrestUrl} alt="Club crest" className="h-full w-full object-contain" />
+              </div>
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border bg-surface-elevated text-2xl text-muted">
+                🛡️
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <input
+                name="crest"
+                type="file"
+                accept="image/*"
+                className="input"
+              />
+            </div>
+          </div>
+          {crestError && <p className="text-xs text-red-400">{crestError}</p>}
+          {crestSaved && <p className="text-xs text-success">Club crest saved.</p>}
+          <button type="submit" disabled={pending} className="btn-primary w-full">
+            {pending ? "Saving…" : "Save crest"}
+          </button>
         </form>
 
         {/* Connect — Social links */}
@@ -445,25 +588,18 @@ export function ProfileEditor({
             )}
           </div>
 
-          <div>
-            <label className="label">Or pick an accent color</label>
-            <ColorSwatchPicker
-              swatches={ACCENT_PRESETS}
-              selected={colors.accentColor}
-              onSelect={(c) =>
-                persistColors({ ...colors, accentColor: c, primaryColor: c })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="label">Background style</label>
-            <ColorSwatchPicker
-              swatches={BACKGROUND_PRESETS}
-              selected={colors.secondaryColor}
-              onSelect={(c) => persistColors({ ...colors, secondaryColor: c })}
-            />
-          </div>
+          <ColorWheelPicker
+            accentColor={colors.accentColor}
+            backgroundColor={colors.secondaryColor}
+            onAccentChange={(c) =>
+              persistColors({ ...colors, accentColor: c, primaryColor: c })
+            }
+            onBackgroundChange={(c) =>
+              persistColors({ ...colors, secondaryColor: c })
+            }
+            accentSwatches={ACCENT_PRESETS}
+            backgroundSwatches={BACKGROUND_PRESETS}
+          />
 
           {savedMsg && <p className="text-xs text-success">{savedMsg}</p>}
         </div>
@@ -580,6 +716,9 @@ export function ProfileEditor({
             gradYear={profile.gradYear}
             gpa={profile.gpa}
             heightInches={profile.heightInches}
+            goalsScored={profile.goalsScored}
+            assists={profile.assists}
+            clubCrestUrl={clubCrestUrl}
             club={profile.club}
             highSchool={profile.highSchool}
             city={profile.city}
@@ -588,6 +727,7 @@ export function ProfileEditor({
             photoUrl={photoPreview || photoUrl}
             photoPositionX={photoPosition.x}
             photoPositionY={photoPosition.y}
+            photoScale={photoPosition.scale ?? 1}
             primaryColor={colors.primaryColor}
             secondaryColor={colors.secondaryColor}
             accentColor={colors.accentColor}

@@ -74,9 +74,10 @@ export async function signupAction(formData: FormData) {
   const role = String(formData.get("role")) as "ATHLETE" | "PARENT" | "COACH";
   const firstName = String(formData.get("firstName"));
   const lastName = String(formData.get("lastName"));
+  const coachType = String(formData.get("coachType") || "single");
 
   try {
-    const user = await registerUser({ email, password, role, firstName, lastName });
+    const user = await registerUser({ email, password, role, firstName, lastName, coachType });
     if (role === "ATHLETE") redirect("/athlete/onboarding");
     redirect(
       role === "COACH" ? "/coach" : "/parent"
@@ -156,6 +157,7 @@ export async function updatePhotoPosition(data: unknown) {
     data: {
       photoPositionX: parsed.photoPositionX,
       photoPositionY: parsed.photoPositionY,
+      photoScale: parsed.photoScale,
     },
   });
 
@@ -473,6 +475,22 @@ export async function recordProfileView(athleteProfileId: string) {
       isAnonymous: !session,
     },
   });
+}
+
+export async function toggleProfileVisibility() {
+  const session = await getSession();
+  if (!session?.athleteProfileId) throw new Error("Unauthorized");
+  const profile = await prisma.athleteProfile.findUnique({
+    where: { id: session.athleteProfileId },
+    select: { isVisible: true },
+  });
+  if (!profile) throw new Error("Profile not found");
+  const updated = await prisma.athleteProfile.update({
+    where: { id: session.athleteProfileId },
+    data: { isVisible: !profile.isVisible },
+  });
+  revalidatePath("/athlete");
+  revalidatePath("/athlete/profile");
 }
 
 export async function linkParentByCode(code: string) {

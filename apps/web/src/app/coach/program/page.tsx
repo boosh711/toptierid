@@ -16,6 +16,14 @@ export default async function CoachProgramPage() {
       <CoachNav />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <h1 className="page-title">Program workspace</h1>
+        {coach && (
+          <p className="mt-1 text-sm text-muted">
+            Coach type:{" "}
+            <span className="font-medium text-foreground">
+              {coach.coachType === "club" ? "Club Coach (manages multiple teams)" : "Single Team (college coach)"}
+            </span>
+          </p>
+        )}
         {coach?.program ? (
           <div className="card mt-6">
             <h2 className="font-semibold">{coach.program.name}</h2>
